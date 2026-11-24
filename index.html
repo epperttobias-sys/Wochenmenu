@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2250">
+<meta name="app-version" content="20261124-2259">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -426,6 +426,84 @@ img.logo{display:block;object-fit:cover;padding:0}
 .sw input:checked+.swt::after{left:19px}
 @media (min-width:681px){.pgrid{grid-template-columns:repeat(4,1fr)}}
 .psegs button{white-space:nowrap;font-size:13.5px;padding:8px 4px}
+
+/* ---------- Kompakte Woche (Handy) ---------- */
+.wkc{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:6px 8px 8px}
+.wkh{display:grid;grid-template-columns:44px 1fr 1fr;gap:6px;padding:4px 2px 6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.wrow{display:grid;grid-template-columns:44px 1fr 1fr;gap:6px;padding:4px 2px;border-top:1px solid var(--line)}
+.wrow:first-of-type{border-top:0}
+.wrow.today{background:var(--accent-soft);border-radius:12px;border-top-color:transparent}
+.wrow.today+.wrow{border-top-color:transparent}
+.wd{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;line-height:1.1}
+.wd b{font-size:15px}
+.wd small{font-size:10.5px;color:var(--muted)}
+.wd i{font-style:normal;font-size:9px;font-weight:800;color:#fff;background:var(--accent);border-radius:5px;padding:1px 4px;margin-top:2px;text-transform:uppercase}
+.wc{border:0;background:transparent;display:flex;align-items:center;gap:7px;padding:3px;border-radius:12px;text-align:left;min-width:0;position:relative}
+.wc:hover,.wc:active{background:var(--bg)}
+.wcart{width:40px;height:40px;border-radius:10px;font-size:22px;flex:none;object-fit:cover}
+.wcart .as{font-size:.48em;right:4%;bottom:4%}
+.wplus{display:grid;place-items:center;border:1.5px dashed var(--line2);color:#b8bec6;font-size:18px;background:transparent}
+.wcn{font-size:12.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;hyphens:auto;min-width:0}
+.wc .who-b{position:absolute;left:30px;top:30px;width:15px;height:15px;font-size:8.5px;box-shadow:0 0 0 2px #fff}
+.wsg{position:absolute;left:-2px;top:-2px;min-width:16px;height:16px;border-radius:999px;background:#fff;color:var(--ink2);font-size:10px;font-weight:800;display:grid;place-items:center;box-shadow:var(--shadow);padding:0 3px}
+.wsg.hot{background:var(--hot);color:#fff}
+.wsep{display:flex;align-items:center;gap:8px;margin:6px 2px 2px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#7c3aed}
+.wsep::before,.wsep::after{content:"";flex:1;height:1px;background:#e4d9fb}
+.wrow.we{background:#faf7ff;border-radius:12px;border-top-color:#f0e9fe}
+.wrow.we.today{background:var(--accent-soft)}
+
+/* ---------- Umschalter Liste | Agenda | Bilder ---------- */
+.vbar{display:flex;gap:4px;background:#eceef1;padding:4px;border-radius:12px;margin-bottom:12px}
+.vbar button{flex:1;border:0;background:transparent;color:var(--ink2);font-weight:600;font-size:13.5px;padding:7px 4px;border-radius:9px}
+.vbar button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.tplweek{padding:14px}
+.tw-t{font-weight:700;font-size:15px}
+.tplweek .chips{flex-wrap:wrap;overflow:visible}
+/* Variante B: Agenda */
+.ag-g{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:6px 10px 8px;margin-bottom:10px}
+.ag-g.we{background:#faf7ff}
+.ag-gh{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 2px 4px}
+.ag-g.we .ag-gh{color:#7c3aed}
+.ag-day{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--line);align-items:center}
+.ag-gh+.ag-day{border-top:0}
+.ag-day.today{background:var(--accent-soft);border-radius:12px;margin:0 -6px;padding:5px 6px;border-top-color:transparent}
+.ag-dt{border:0;background:var(--bg);border-radius:12px;width:42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;flex:none;padding:0}
+.ag-day.today .ag-dt{background:var(--accent);color:#fff}
+.ag-day.today .ag-dt small{color:#e6fff2}
+.ag-dt b{font-size:14px}.ag-dt small{font-size:10.5px;color:var(--muted)}
+.ag-meals{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ag-m{border:0;background:transparent;display:flex;align-items:center;gap:6px;padding:2px 4px;border-radius:8px;text-align:left;min-width:0}
+.ag-m:active{background:var(--bg)}
+.ag-ml{font-size:11px;color:#b8bec6;width:12px;flex:none}
+.ag-e{font-size:16px;flex:none}
+.ag-n{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.ag-m.free .ag-n{font-weight:500;font-size:13px}
+.ag-m .who-b{width:16px;height:16px;font-size:9px;flex:none}
+
+/* Variante C: Bilder-Raster */
+.mz{padding:8px 6px 10px}
+.mz-row{display:grid;grid-template-columns:16px repeat(5,1fr);gap:5px;align-items:start;margin-top:5px}
+.mz-row.head{margin-top:0}
+.mz-l{font-size:12px;color:#b8bec6;align-self:center}
+.mz-d{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;line-height:1.05;padding:2px 0;border-radius:8px}
+.mz-d b{font-size:13px}.mz-d small{font-size:10px;color:var(--muted)}
+.mz-d.today{background:var(--accent);color:#fff}.mz-d.today small{color:#e6fff2}
+.mz-c{border:0;background:transparent;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;min-width:0}
+.mz-a{width:100%;aspect-ratio:1/1;height:auto;border-radius:12px;font-size:26px;object-fit:cover}
+.mz-a .as{display:none}
+.mz-a.wplus{display:grid;place-items:center}
+.mz-n{font-size:10.5px;font-weight:600;line-height:1.15;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;hyphens:auto;width:100%}
+.mz-c.free .mz-n{color:#b8bec6;font-weight:500}
+.mz-c .who-b{position:absolute;right:-3px;top:-3px;width:15px;height:15px;font-size:8.5px;box-shadow:0 0 0 2px #fff}
+.mz-c .wsg{left:-3px;top:-3px}
+.mz-we{margin-top:10px}
+.mz-wg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mz-wd{background:#faf7ff;border-radius:18px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:var(--shadow)}
+.mz-wd.today{background:var(--accent-soft)}
+.mz-wdh{grid-column:1/-1;border:0;background:transparent;text-align:left;padding:2px 2px 4px}
+.mz-wdh b{font-size:14px}.mz-wdh small{font-size:11px;color:var(--muted)}
+.mz-c.big .mz-a{font-size:32px}
+.mz-c.big .mz-n{font-size:11.5px}
 </style>
 </head>
 <body>
@@ -599,9 +677,62 @@ window.startApp=function(backend){
     h+='<button class="hcard" data-tab="recipes"><div class="hc-head"><span class="hc-ic c5">'+ICON.recipes+'</span><span class="hc-go">›</span></div><div class="hc-t">Gerichte</div><div class="hc-s">'+rs.filter(function(r){return srcOf(r)==="own";}).length+' eigene · '+rs.filter(function(r){return srcOf(r)==="fooby";}).length+' Fooby</div><div class="mini">'+rs.slice(0,5).map(function(r){return '<span>'+dishEmoji(r.name)+'</span>';}).join("")+'</div></button>';
     return h+'</div></div>';
   }
+  function isPhone(){return window.innerWidth<=680;}
+  function renderPlanCompact(mon,key,w,today){
+    var h='<div class="wkc"><div class="wkh"><span></span><span>Mittag</span><span>Abend</span></div>';
+    DAYS.forEach(function(dn,i){
+      var d=new Date(mon);d.setDate(mon.getDate()+i);var isT=d.getTime()===today.getTime();
+      if(i===5)h+='<div class="wsep"><span>Wochenende</span></div>';
+      h+='<div class="wrow'+(i>=5?" we":"")+(isT?" today":"")+'"><button class="wd" data-dayopen="'+i+'"><b>'+dn.slice(0,2)+'</b><small>'+d.getDate()+'.'+(d.getMonth()+1)+'.</small>'+(isT?'<i>heute</i>':'')+'</button>';
+      MEALS.forEach(function(m){
+        var sv=slotOf(w.days,i,m[0]),name=label(sv),sg=sugFor(key,i,m[0]),nn=sg.filter(isNew).length;
+        h+='<button class="wc'+(name?" on":"")+'" data-slot="'+i+'|'+m[0]+'">'+(name?vis(sv&&sv.id,name,"wcart"):'<span class="wcart wplus">＋</span>')+'<span class="wcn">'+(name?esc(name):'<span class="muted">frei</span>')+'</span>'+(sv&&sv.by&&name?badge(sv.by,false):'')+(sg.length?'<span class="wsg'+(nn?" hot":"")+'">'+sg.length+'</span>':'')+'</button>';
+      });
+      h+='</div>';
+    });
+    return h+'</div>';
+  }
+  // Variante B: Agenda – pro Tag eine Karte, Mittag/Abend untereinander
+  function renderPlanAgenda(mon,key,w,today){
+    var h='';
+    [["Werktage",0,5],["Wochenende",5,7]].forEach(function(g){
+      h+='<div class="ag-g'+(g[1]===5?" we":"")+'"><div class="ag-gh">'+g[0]+'</div>';
+      for(var i=g[1];i<g[2];i++){
+        var d=new Date(mon);d.setDate(mon.getDate()+i);var isT=d.getTime()===today.getTime();
+        h+='<div class="ag-day'+(isT?" today":"")+'"><button class="ag-dt" data-dayopen="'+i+'"><b>'+DAYS[i].slice(0,2)+'</b><small>'+d.getDate()+'.</small></button><div class="ag-meals">';
+        MEALS.forEach(function(m){
+          var sv=slotOf(w.days,i,m[0]),name=label(sv),sg=sugFor(key,i,m[0]),nn=sg.filter(isNew).length;
+          h+='<button class="ag-m'+(name?"":" free")+'" data-slot="'+i+'|'+m[0]+'"><span class="ag-ml">'+(m[0]==="mittag"?"☀︎":"☾")+'</span>'+(name?'<span class="ag-e">'+dishEmoji(name)+'</span><span class="ag-n">'+esc(name)+'</span>':'<span class="ag-n muted">'+m[1]+' frei</span>')+(sv&&sv.by&&name?badge(sv.by,false):'')+(sg.length?'<span class="wsg'+(nn?" hot":"")+'" style="position:static">'+sg.length+'</span>':'')+'</button>';
+        });
+        h+='</div></div>';
+      }
+      h+='</div>';
+    });
+    return h;
+  }
+  // Variante C: Bilder-Raster – Werktage als Bildleiste, Wochenende gross
+  function renderPlanMosaic(mon,key,w,today){
+    var h='';
+    var cell=function(i,m,big){var sv=slotOf(w.days,i,m[0]),name=label(sv),sg=sugFor(key,i,m[0]),nn=sg.filter(isNew).length;
+      return '<button class="mz-c'+(name?"":" free")+(big?" big":"")+'" data-slot="'+i+'|'+m[0]+'">'+(name?vis(sv&&sv.id,name,"mz-a"):'<span class="mz-a wplus">＋</span>')+'<span class="mz-n">'+(name?esc(name):'frei')+'</span>'+(sv&&sv.by&&name?badge(sv.by,false):'')+(sg.length?'<span class="wsg'+(nn?" hot":"")+'">'+sg.length+'</span>':'')+'</button>';};
+    h+='<div class="mz card"><div class="mz-row head"><span></span>';
+    for(var i=0;i<5;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);var isT=d.getTime()===today.getTime();h+='<button class="mz-d'+(isT?" today":"")+'" data-dayopen="'+i+'"><b>'+DAYS[i].slice(0,2)+'</b><small>'+d.getDate()+'.</small></button>';}
+    h+='</div>';
+    MEALS.forEach(function(m){h+='<div class="mz-row"><span class="mz-l">'+(m[0]==="mittag"?"☀︎":"☾")+'</span>';for(var i=0;i<5;i++)h+=cell(i,m,false);h+='</div>';});
+    h+='</div><div class="mz-we"><div class="ag-gh" style="color:#7c3aed">Wochenende</div><div class="mz-wg">';
+    for(var j=5;j<7;j++){var dd=new Date(mon);dd.setDate(mon.getDate()+j);var isT2=dd.getTime()===today.getTime();
+      h+='<div class="mz-wd'+(isT2?" today":"")+'"><button class="mz-wdh" data-dayopen="'+j+'"><b>'+DAYS[j]+'</b> <small>'+dlong(dd)+'</small></button>'+MEALS.map(function(m){return cell(j,m,true);}).join("")+'</div>';}
+    return h+'</div></div>';
+  }
   function renderPlan(mon){
     var key=weekKey(ui.offset),w=week(key),today=new Date();today.setHours(0,0,0,0);
-    var h='<div class="chips"><button class="pill primary" data-a="applytpl">Vorlage anwenden</button><button class="pill" data-a="fill">Leere Abende füllen</button><button class="pill" data-a="savetpl">Als Vorlage speichern</button><button class="pill" data-a="clear">Woche leeren</button></div><div class="grid">';
+    if(!ui.pv){try{ui.pv=localStorage.getItem("wm-pv")||"A";}catch(x){ui.pv="A";}}
+    var V=ui.pv;
+    var vbar='<div class="vbar">'+[["A","Liste"],["B","Agenda"],["C","Bilder"]].map(function(x){return '<button class="'+(V===x[0]?"on":"")+'" data-pv="'+x[0]+'">'+x[1]+'</button>';}).join("")+'</div>';
+    if(isPhone()&&V==="B")return vbar+renderPlanAgenda(mon,key,w,today);
+    if(isPhone()&&V==="C")return vbar+renderPlanMosaic(mon,key,w,today);
+    if(isPhone())return vbar+renderPlanCompact(mon,key,w,today);
+    var h='<div class="grid">';
     DAYS.forEach(function(dn,i){
       var d=new Date(mon);d.setDate(mon.getDate()+i);
       var isT=d.getTime()===today.getTime();
@@ -749,7 +880,8 @@ window.startApp=function(backend){
   }
   function renderTemplates(){
     var kw=isoWeek(monday(ui.offset))[1],list=tplsSorted();
-    var h='<div class="muted" style="margin-bottom:12px">Eure festen Wochenmenüs. Tippe auf ein Feld, um es zu ändern. «Anwenden» übernimmt die Vorlage in KW '+kw+'.</div><div class="tpls">';
+    var h='<div class="tplweek card"><div class="tw-t">Wochenmenü KW '+kw+'</div><div class="chips" style="margin:8px 0 0"><button class="pill primary" data-a="savetpl">Als Vorlage speichern</button><button class="pill" data-a="fill">Leere Abende füllen</button><button class="pill" data-a="clear">Woche leeren</button></div></div>';
+    h+='<div class="muted" style="margin:14px 2px 12px">Eure festen Wochenmenüs. Tippe auf ein Feld, um es zu ändern. «Anwenden» übernimmt die Vorlage in KW '+kw+'.</div><div class="tpls">';
     list.forEach(function(t){
       h+='<div class="card"><div class="tpl-head"><h3>'+esc(t.name)+'</h3><div style="display:flex;gap:6px"><button class="btn primary sm" data-apply="'+t.id+'">Auf KW '+kw+' anwenden</button><button class="btn ghost sm" data-deltpl="'+t.id+'" aria-label="Vorlage löschen">✕</button></div></div><table class="tt"><thead><tr><th></th><th>Mittag</th><th>Abend</th></tr></thead><tbody>';
       DAYS.forEach(function(dn,i){h+='<tr><th>'+dn.slice(0,2)+'</th>';MEALS.forEach(function(m){var n=label(slotOf(t.days,i,m[0]));h+='<td><button class="cell" data-tslot="'+t.id+'|'+i+'|'+m[0]+'">'+(n?esc(n):'<span class="muted">–</span>')+'</button></td>';});h+='</tr>';});
@@ -981,6 +1113,7 @@ window.startApp=function(backend){
       ui.tab=nt;ui.modal=null;render();window.scrollTo(0,0);return;}
     if((el=t.closest("[data-mode]"))){ui.mode=el.dataset.mode;render();return;}
     if((el=t.closest("[data-slot]"))){var p=el.dataset.slot.split("|"),sv0=slotOf(week(weekKey(ui.offset)).days,+p[0],p[1]);if(label(sv0))open({type:"day",day:+p[0]});else open({type:"pick",day:+p[0],meal:p[1],q:""});return;}
+    if((el=t.closest("[data-pv]"))){ui.pv=el.dataset.pv;try{localStorage.setItem("wm-pv",ui.pv);}catch(x){}render();return;}
     if((el=t.closest("[data-dayopen]"))){open({type:"day",day:+el.dataset.dayopen});return;}
     if((el=t.closest("[data-pickslot]"))){var ps2=el.dataset.pickslot.split("|");open({type:"pick",day:+ps2[0],meal:ps2[1],q:"",fromDay:true});return;}
     if((el=t.closest("[data-dnav]"))){ui.modal.day=(ui.modal.day+(+el.dataset.dnav)+7)%7;render();return;}
@@ -1064,7 +1197,9 @@ window.startApp=function(backend){
     if(!ids.length)return;
     user.profiles(ids).then(function(ps){ids.forEach(function(id){var p=ps&&ps[id];if(p&&p.name)names[id]=p.name.split(" ")[0];});render();},function(){});
   }
-  var bootT=Date.now();
+  var bootT=Date.now(),lastPhone=window.innerWidth<=680;
+  try{if(history.state&&history.state.wm)history.replaceState(null,"");}catch(x){}
+  window.addEventListener("resize",function(){var ph=window.innerWidth<=680;if(ph!==lastPhone){lastPhone=ph;render();}});
   window.addEventListener("popstate",function(e){var st=e.state&&e.state.wm;if(ui.modal){ui.modal=null;}ui.tab=st||"home";render();window.scrollTo(0,0);});
   function notifyPartner(oldW,newW){
     var k=weekKey(ui.offset),a=oldW[k]||{},b=newW[k]||{},msgs=[];

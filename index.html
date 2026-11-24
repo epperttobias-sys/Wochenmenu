@@ -220,6 +220,8 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.4px;margin:0;line-height:1.1}
 @media (max-width:680px){.tiles{grid-template-columns:repeat(3,1fr)}.tile .te{font-size:36px}}
 @media (min-width:1100px){.tiles{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))}}
 img.logo{display:block;object-fit:cover;padding:0}
+.codein{font-size:26px;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums}
+.login .btn.primary{padding:12px}
 </style>
 </head>
 <body>
@@ -450,6 +452,8 @@ window.startApp=function(backend){
       h+='<h2>'+(m.id?"Gericht bearbeiten":"Neues Gericht")+'</h2><form data-form="recipe"><div class="field"><label>Name</label><input name="name" required value="'+esc(r.name)+'" autofocus></div><div class="field"><label>Zutaten (eine pro Zeile)</label><textarea name="ing">'+esc((r.ingredients||[]).join("\n"))+'</textarea></div><div class="field"><label>Tags (mit Komma getrennt)</label><input name="tags" value="'+esc((r.tags||[]).join(", "))+'" placeholder="vegetarisch, schnell"></div><div class="row"><button type="button" class="btn" data-a="close">Abbrechen</button><button class="btn primary">Speichern</button></div></form>';
     } else if(m.type==="applytpl"){
       h+='<h2>Vorlage anwenden</h2><div class="muted">Welches Menü soll in KW '+isoWeek(monday(ui.offset))[1]+'?</div><div class="picklist">'+tplsSorted().map(function(t){return '<button class="pick" data-apply="'+t.id+'">'+esc(t.name)+'</button>';}).join("")+'</div><div class="row"><button class="btn" data-a="close">Abbrechen</button></div>';
+    } else if(m.type==="pw"){
+      h+='<h2>Passwort festlegen</h2><p class="muted">Damit kannst du dich auf jedem Gerät mit E-Mail und Passwort anmelden – ohne Code per Mail.</p><form data-form="pw"><input type="email" name="u" autocomplete="username" value="'+esc(backend.email)+'" style="display:none"><div class="field"><label>Neues Passwort (mind. 8 Zeichen)</label><input type="password" name="p1" minlength="8" required autocomplete="new-password" autofocus></div><div class="field"><label>Nochmals eingeben</label><input type="password" name="p2" minlength="8" required autocomplete="new-password"></div>'+(m.err?'<p class="note">'+esc(m.err)+'</p>':'')+'<div class="row"><button type="button" class="btn" data-a="close">Abbrechen</button><button class="btn primary">Speichern</button></div></form>';
     } else if(m.type==="confirm"){
       h+='<h2>'+esc(m.title)+'</h2><p class="muted">'+esc(m.text)+'</p><div class="row"><button class="btn" data-a="close">Abbrechen</button><button class="btn primary" data-a="confirm">'+esc(m.ok||"OK")+'</button></div>';
     }
@@ -479,6 +483,7 @@ window.startApp=function(backend){
   var actions={
     logout:function(){backend.logout();},
     thisweek:function(){ui.offset=0;render();},
+    setpw:function(){open({type:"pw"});},
     togglegot:function(){ui.showGot=!ui.showGot;render();},
     clearextra:function(){var key=weekKey(ui.offset),w=week(key),chk=w.checked||{},keep=[],pc={};(w.extra||[]).forEach(function(e){var k="x:"+e.toLowerCase();if(chk[k])pc[k]=null;else keep.push(e);});weekPatch(key,{extra:keep,checked:pc});},
     prev:function(){ui.offset--;render();},next:function(){ui.offset++;render();},
@@ -557,6 +562,12 @@ window.startApp=function(backend){
       var data={name:name,ingredients:f.elements.ing.value.split(/\n|,/).map(function(s){return s.trim();}).filter(Boolean),tags:f.elements.tags.value.split(",").map(function(s){return s.trim();}).filter(Boolean)};
       var id=ui.modal.id||db.collection("recipes").doc().id;
       write("recipes/"+id,function(r){return r.set(data);});ui.modal=null;render();
+    } else if(kind==="pw"){
+      var p1=f.elements.p1.value,p2=f.elements.p2.value;
+      if(p1.length<8){ui.modal.err="Mindestens 8 Zeichen.";render();return;}
+      if(p1!==p2){ui.modal.err="Die beiden Passwörter sind nicht gleich.";render();return;}
+      var btn=f.querySelector("button.primary");btn.disabled=true;btn.textContent="Speichere …";
+      backend.setPassword(p1).then(function(){ui.modal=null;render();toast("Passwort gespeichert ✓");},function(err){ui.modal.err="Das hat nicht geklappt: "+((err&&err.message)||"");render();});
     } else if(kind==="extra"){var x=f.elements.x.value.trim();if(!x)return;var key=weekKey(ui.offset),lx=x.toLowerCase(),ex=week(key).extra||[],hit=shopAll(key).filter(function(i){return i.name.toLowerCase()===lx;})[0];f.elements.x.value="";
       if(hit){if(hit.on){var pc={checked:{}};pc.checked[hit.k]=null;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
       else weekPatch(key,{extra:ex.concat([x])});}
@@ -614,18 +625,32 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
   }
   var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-  function showLogin(msg){
-    shell('<h2>Anmelden</h2><p class="muted">Gib deine E-Mail-Adresse ein. Du bekommst einen Link, mit dem du dich anmeldest – ganz ohne Passwort.</p>'+
-      '<form id="loginf" class="addrow"><input type="email" name="email" required placeholder="name@beispiel.ch" autocomplete="email"><button class="btn primary">Login-Link senden</button></form>'+
-      (msg?'<p class="note" style="margin-top:14px">'+msg+'</p>':''));
-    document.getElementById("loginf").addEventListener("submit",function(e){
-      e.preventDefault();var email=e.target.elements.email.value.trim();if(!email)return;
-      var btn=e.target.querySelector("button");btn.disabled=true;btn.textContent="Sende …";
-      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(r){
-        if(r.error)showLogin("Das hat nicht geklappt: "+esc(r.error.message));
-        else showLogin("📬 Schau in dein Postfach (<b>"+esc(email)+"</b>) und tippe auf den Link. Du kannst dieses Fenster schliessen.");
-      });
-    });
+  var lastEmail="";try{lastEmail=localStorage.getItem("wm-email")||"";}catch(e){}
+  function remember(em){lastEmail=em;try{localStorage.setItem("wm-email",em);}catch(e){}}
+  function trMsg(m){m=String(m||"");
+    if(/rate limit/i.test(m))return "Zu viele Mails in kurzer Zeit. Bitte etwa eine Stunde warten und es dann nochmals versuchen.";
+    if(/expired|invalid/i.test(m)&&/otp|token/i.test(m))return "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.";
+    return "Das hat nicht geklappt: "+esc(m);}
+  function showLogin(msg,mode){
+    mode=mode||"code";
+    var tabs=mode==="code"?'<p class="muted">Gib deine E-Mail-Adresse ein. Du bekommst einen Code per Mail. Das brauchst du nur einmal pro Gerät – danach bleibst du angemeldet.</p>':'';
+    var body;
+    if(mode==="pw")body='<form id="pwf"><div class="field"><label>E-Mail</label><input type="email" name="email" required autocomplete="username" value="'+esc(lastEmail)+'" placeholder="name@beispiel.ch"></div><div class="field"><label>Passwort</label><input type="password" name="pw" required autocomplete="current-password"></div><button class="btn primary" style="width:100%">Anmelden</button></form><p class="muted small" style="margin-top:12px">Noch kein Passwort? Wähle «Mit Code per E-Mail». Nach der Anmeldung kannst du unten in der App ein Passwort festlegen.</p>';
+    else if(mode==="code")body='<form id="codef"><div class="field"><label>E-Mail</label><input type="email" name="email" required autocomplete="email" value="'+esc(lastEmail)+'" placeholder="name@beispiel.ch"></div><button class="btn primary" style="width:100%">Code senden</button></form>';
+    else body='<p class="muted">Wir haben dir eine E-Mail an <b>'+esc(lastEmail)+'</b> geschickt. Gib den Code daraus hier ein:</p><form id="verf"><div class="field"><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456" class="codein" required></div><button class="btn primary" style="width:100%">Anmelden</button></form><p class="muted small" style="margin-top:12px">Keine Mail? Schau im Spam-Ordner nach. <a href="#" data-lm="code">Neuen Code anfordern</a></p>';
+    shell('<h2>Anmelden</h2>'+tabs+(msg?'<p class="note" style="margin-top:12px">'+msg+'</p>':'')+body);
+    app.querySelectorAll("[data-lm]").forEach(function(x){x.addEventListener("click",function(e){e.preventDefault();showLogin("",x.dataset.lm);});});
+    function busy(f,t){var b=f.querySelector("button.primary");b.disabled=true;b.textContent=t;}
+    var pwf=document.getElementById("pwf");
+    if(pwf)pwf.addEventListener("submit",function(e){e.preventDefault();var em=pwf.elements.email.value.trim();remember(em);busy(pwf,"Melde an …");
+      sb.auth.signInWithPassword({email:em,password:pwf.elements.pw.value}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"pw");});});
+    var cf=document.getElementById("codef");
+    if(cf)cf.addEventListener("submit",function(e){e.preventDefault();var em=cf.elements.email.value.trim();remember(em);busy(cf,"Sende …");
+      sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"code");else showLogin("","verify");});});
+    var vf=document.getElementById("verf");
+    if(vf)vf.addEventListener("submit",function(e){e.preventDefault();var code=vf.elements.code.value.replace(/\D/g,"");busy(vf,"Prüfe …");
+      sb.auth.verifyOtp({email:lastEmail,token:code,type:"email"}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"verify");});});
+    var af=app.querySelector("input[autofocus],.codein")||app.querySelector('input[name="'+(lastEmail&&mode==="pw"?"pw":"email")+'"]');if(af&&window.matchMedia&&window.matchMedia("(pointer:fine)").matches)af.focus();
   }
 
   function clone(o){return o==null?o:JSON.parse(JSON.stringify(o));}
@@ -661,7 +686,7 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
     var names={};members.forEach(function(m){names[m.email.toLowerCase()]=m.name;});
     var user={id:function(){return Promise.resolve(email);},can:function(){return Promise.resolve(true);},
       profiles:function(ids){var o={};ids.forEach(function(id){o[id]={name:names[String(id).toLowerCase()]||""};});return Promise.resolve(o);}};
-    return {db:db,user:user,email:email,logout:function(){sb.auth.signOut().then(function(){location.reload();});}};
+    return {db:db,user:user,email:email,logout:function(){sb.auth.signOut().then(function(){location.reload();});},setPassword:function(pw){return sb.auth.updateUser({password:pw}).then(function(r){if(r.error)throw r.error;});}};
   }
 
   var started=false;

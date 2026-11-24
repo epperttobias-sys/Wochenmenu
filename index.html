@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2152">
+<meta name="app-version" content="20261124-2207">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -305,6 +305,39 @@ img.logo{display:block;object-fit:cover;padding:0}
 .tile .tsub{font-size:10px;font-weight:500;opacity:.75;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;margin-top:-3px}
 .slot .meal{display:flex;align-items:center;gap:6px}
 .slot .meal .who-b{width:17px;height:17px;font-size:9.5px;margin-left:auto}
+
+/* ---------- Übersicht (Hub) ---------- */
+.hubtop h1{font-size:24px}
+.sectop{justify-content:flex-start;gap:12px;align-items:center}
+.backbtn{width:42px;height:42px;border-radius:14px;border:0;background:var(--card);box-shadow:var(--shadow);font-size:28px;line-height:1;color:var(--ink);display:grid;place-items:center;flex:none;padding-bottom:3px}
+.backbtn:hover{background:#fafbfc}
+.sectitle h1{font-size:26px}
+.hub{display:flex;flex-direction:column;gap:12px}
+.hcard{border:0;text-align:left;background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;transition:transform .1s}
+.hcard:active{transform:scale(.98)}
+.hc-head{display:flex;align-items:center;gap:12px}
+.hc-ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.hc-ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hc-ic.c2{background:#fff1e8;color:#ea580c}.hc-ic.c3{background:#e8f1ff;color:#2563eb}.hc-ic.c4{background:#f3ebff;color:#7c3aed}.hc-ic.c5{background:#fdeaf3;color:#db2777}
+.hc-go{margin-left:auto;font-size:24px;color:#c3c8cf;line-height:1}
+.hc-t{font-weight:700;font-size:17px;margin-top:4px}
+.hc-s{color:var(--muted);font-size:13.5px}
+.hc-s .hot{color:#fff;background:var(--hot);padding:1px 8px;border-radius:999px;font-size:12px}
+.hero .hc-t{margin-top:0}
+.today2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.tmeal{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:14px;padding:8px}
+.tvis{width:52px;height:52px;border-radius:12px;font-size:30px;object-fit:cover}
+.tvis .as{display:none}
+.tmeal .dish{font-size:14px;line-height:1.25}
+.ahead{display:flex;gap:8px;margin-top:6px;overflow:hidden}
+.ah{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted)}
+.ah b{font-weight:600}
+.avis{width:38px;height:38px;border-radius:11px;font-size:21px;object-fit:cover}
+.avis .as{display:none}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mini{display:flex;gap:2px;font-size:18px;margin-top:4px}
+@media (min-width:900px){.hub{display:grid;grid-template-columns:1.3fr 2fr;align-items:start}.hgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:680px){.wrap{padding-bottom:calc(24px + env(safe-area-inset-bottom))}.toast,.updbar{bottom:calc(20px + env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
@@ -317,7 +350,7 @@ window.startApp=function(backend){
   var MEALS=[["mittag","Mittag"],["abend","Abend"]];
   var D={recipes:{},templates:{},weeks:{},sugg:{},images:{},hist:{}};
   var loaded={recipes:false,templates:false,weeks:false,sugg:false};
-  var ui={tab:"plan",offset:0,modal:null,mode:"set"};
+  var ui={tab:"home",offset:0,modal:null,mode:"set"};
   var db=null,user=null,me=null,readOnly=false,conn="connecting",names={},asked={};
 
   // ---------- helpers ----------
@@ -424,21 +457,26 @@ window.startApp=function(backend){
     img.src=url;});
   function savePhoto(rid,src){if(src)write("images/"+rid,function(r){return r.set({src:src});});else write("images/"+rid,function(r){return r.delete();});}
 
+  var SECT={plan:["Wochenmenü","Was gibt es diese Woche?"],sugg:["Vorschläge","Ideen von euch beiden"],shop:["Einkauf","Was ihr noch braucht"],templates:["Vorlagen","Eure festen Wochenmenüs"],recipes:["Gerichte","Alle eure Rezepte"]};
   function render(){
     var app=document.getElementById("app");
     var a=document.activeElement, keep=null;
     if(a&&app.contains(a)&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.type!=="checkbox"){keep={sel:a.hasAttribute("data-filter")?"[data-filter]":a.name?'[name="'+a.name+'"]':null,val:a.value,s:a.selectionStart,e:a.selectionEnd};}
     var mon=monday(ui.offset),sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var h='<div class="wrap"><header class="top"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>Wochenmenü</h1><div class="sub wk"><button class="wkb" data-a="prev" aria-label="Vorherige Woche">‹</button><span>KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</span><button class="wkb" data-a="next" aria-label="Nächste Woche">›</button>'+(ui.offset!==0?'<button class="wkback" data-a="thisweek">zurück zu heute</button>':'')+'</div></div></div></header>';
+    var wkNav='<div class="sub wk"><button class="wkb" data-a="prev" aria-label="Vorherige Woche">‹</button><span>KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</span><button class="wkb" data-a="next" aria-label="Nächste Woche">›</button>'+(ui.offset!==0?'<button class="wkback" data-a="thisweek">zurück zu heute</button>':'')+'</div>';
+    var h;
+    if(ui.tab==="home")h='<div class="wrap"><header class="top hubtop"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>'+greet()+'</h1><div class="sub">'+DAYS[(new Date().getDay()+6)%7]+', '+dlong(new Date())+' · KW '+isoWeek(new Date())[1]+'</div></div></div></header>';
+    else h='<div class="wrap"><header class="top sectop"><button class="backbtn" data-tab="home" aria-label="Zur Übersicht"><span>‹</span></button><div class="sectitle"><h1>'+SECT[ui.tab][0]+'</h1>'+((ui.tab==="plan"||ui.tab==="shop")?wkNav:'<div class="sub">'+SECT[ui.tab][1]+'</div>')+'</div></header>';
+
     if(conn==="nodb"){app.innerHTML=h+'<div class="card empty-state">Die Datenbank ist gerade nicht erreichbar. Bitte lade die Seite neu.</div></div>';return;}
     var allLoaded=loaded.recipes&&loaded.templates&&loaded.weeks&&loaded.sugg;
     var nNew=sugList().filter(isNew).length, nAll=Object.keys(D.sugg).length;
-    h+='<nav class="tabs">'+[["plan","Woche"],["sugg","Vorschläge"],["shop","Einkauf"],["templates","Vorlagen"],["recipes","Gerichte"]].map(function(t){var b=t[0]==="sugg"&&nNew?'<b class="badge">'+nNew+'</b>':'';return '<button class="tab'+(ui.tab===t[0]?" on":"")+'" data-tab="'+t[0]+'"><span class="ti">'+ICON[t[0]]+b+'</span><span class="tl">'+t[1]+'</span></button>';}).join("")+'</nav><main>';
+    h+='<nav class="tabs" style="display:none">'+[["plan","Woche"],["sugg","Vorschläge"],["shop","Einkauf"],["templates","Vorlagen"],["recipes","Gerichte"]].map(function(t){var b=t[0]==="sugg"&&nNew?'<b class="badge">'+nNew+'</b>':'';return '<button class="tab'+(ui.tab===t[0]?" on":"")+'" data-tab="'+t[0]+'"><span class="ti">'+ICON[t[0]]+b+'</span><span class="tl">'+t[1]+'</span></button>';}).join("")+'</nav><main>';
     if(!allLoaded&&conn!=="slow")h+='<div class="card empty-state">Lade euren Plan …</div>';
     else{
       if(conn==="slow")h+='<div class="note">Die Daten sind gerade nicht erreichbar – was du siehst, ist evtl. nicht aktuell.</div>';
       if(readOnly)h+='<div class="note">Du kannst diesen Plan ansehen, aber nicht bearbeiten. Prüfe, ob deine E-Mail-Adresse in Supabase als Mitglied eingetragen ist.</div>';
-      h+=ui.tab==="plan"?renderPlan(mon):ui.tab==="sugg"?renderSugg():ui.tab==="shop"?renderShop():ui.tab==="templates"?renderTemplates():renderRecipes();
+      h+=ui.tab==="home"?renderHome():ui.tab==="plan"?renderPlan(mon):ui.tab==="sugg"?renderSugg():ui.tab==="shop"?renderShop():ui.tab==="templates"?renderTemplates():renderRecipes();
     }
     h+='</main><div class="status"><span class="dot'+(conn==="live"&&!readOnly?" live":"")+'"></span>'+(readOnly?"Nur ansehen":conn==="live"?"Live verbunden":"Verbinde …")+' · '+esc(backend.email)+' · <a href="#" data-a="logout">Abmelden</a></div></div>';
     if(ui.modal)h+=renderModal();
@@ -446,6 +484,26 @@ window.startApp=function(backend){
     if(keep&&keep.sel){var f=app.querySelector(keep.sel);if(f){f.value=keep.val;f.focus();try{f.setSelectionRange(keep.s,keep.e);}catch(e){}}}
     else{var af=app.querySelector("[autofocus]");if(af&&ui.justOpened&&window.matchMedia&&window.matchMedia("(pointer:fine)").matches){af.focus();}}
     ui.justOpened=false;
+  }
+  function greet(){var hr=new Date().getHours(),nm=names[me]||"";return (hr<11?"Guten Morgen":hr<17?"Hallo":"Guten Abend")+(nm?", "+esc(nm):"");}
+  function renderHome(){
+    var tk=weekKey(0),tw=week(tk),di=(new Date().getDay()+6)%7;
+    var nNew=sugList().filter(isNew).length,nAll=Object.keys(D.sugg).length;
+    var all=shopAll(tk),todo=all.filter(function(i){return !i.on;});
+    var h='<div class="hub">';
+    // Wochenmenü – gross, mit heute
+    h+='<button class="hcard hero" data-tab="plan"><div class="hc-head"><span class="hc-ic">'+ICON.plan+'</span><div><div class="hc-t">Wochenmenü</div><div class="hc-s">Heute, '+DAYS[di]+'</div></div><span class="hc-go">›</span></div><div class="today2">';
+    MEALS.forEach(function(m){var v=slotOf(tw.days,di,m[0]),n=label(v);h+='<div class="tmeal">'+(n?vis(v&&v.id,n,"tvis"):'<span class="tvis art" style="background:var(--bg)"><span class="ae" style="opacity:.4">＋</span></span>')+'<div><div class="meal">'+m[1]+'</div><div class="dish">'+(n?esc(n):'<span class="muted">noch offen</span>')+'</div></div></div>';});
+    var ahead=[];for(var d=di+1;d<7&&ahead.length<5;d++){var v=slotOf(tw.days,d,"abend");if(v)ahead.push({d:d,v:v});}
+    h+='</div>'+(ahead.length?'<div class="ahead">'+ahead.map(function(x){var n=label(x.v);return '<span class="ah">'+vis(x.v.id,n,"avis")+'<b>'+DAYS[x.d].slice(0,2)+'</b></span>';}).join("")+'</div>':'')+'</button>';
+    // Grid
+    h+='<div class="hgrid">';
+    h+='<button class="hcard" data-tab="sugg"><div class="hc-head"><span class="hc-ic c2">'+ICON.sugg+'</span><span class="hc-go">›</span></div><div class="hc-t">Vorschläge</div><div class="hc-s">'+(nNew?'<b class="hot">'+nNew+' neu</b>':nAll?nAll+' offen':'Noch keine')+'</div></button>';
+    h+='<button class="hcard" data-tab="shop"><div class="hc-head"><span class="hc-ic c3">'+ICON.shop+'</span><span class="hc-go">›</span></div><div class="hc-t">Einkauf</div><div class="hc-s">'+(todo.length?todo.length+' Artikel':'Alles da 🎉')+'</div>'+(todo.length?'<div class="mini">'+todo.slice(0,5).map(function(i){return '<span>'+i.cl.icon+'</span>';}).join("")+'</div>':'')+'</button>';
+    h+='<button class="hcard" data-tab="templates"><div class="hc-head"><span class="hc-ic c4">'+ICON.templates+'</span><span class="hc-go">›</span></div><div class="hc-t">Vorlagen</div><div class="hc-s">'+tplsSorted().length+' Wochenmenüs</div></button>';
+    var rs=recipesSorted();
+    h+='<button class="hcard" data-tab="recipes"><div class="hc-head"><span class="hc-ic c5">'+ICON.recipes+'</span><span class="hc-go">›</span></div><div class="hc-t">Gerichte</div><div class="hc-s">'+rs.length+' Rezepte</div><div class="mini">'+rs.slice(0,5).map(function(r){return '<span>'+dishEmoji(r.name)+'</span>';}).join("")+'</div></button>';
+    return h+'</div></div>';
   }
   function renderPlan(mon){
     var key=weekKey(ui.offset),w=week(key),today=new Date();today.setHours(0,0,0,0);
@@ -707,7 +765,11 @@ window.startApp=function(backend){
     var t=e.target,el;
     if(t.classList&&t.classList.contains("overlay")){ui.modal=null;render();return;}
     if(t.closest("select"))return;
-    if((el=t.closest("[data-tab]"))){if(el.dataset.tab==="shop"&&ui.tab!=="shop"){var ps=0;try{ps=+localStorage.getItem("wm-seen")||0;localStorage.setItem("wm-seen",String(Date.now()));}catch(x){}ui.prevSeen=ps;}ui.tab=el.dataset.tab;render();return;}
+    if((el=t.closest("[data-tab]"))){var nt=el.dataset.tab;if(nt==="shop"&&ui.tab!=="shop"){var ps=0;try{ps=+localStorage.getItem("wm-seen")||0;localStorage.setItem("wm-seen",String(Date.now()));}catch(x){}ui.prevSeen=ps;}
+      if(nt==="home"){if(history.state&&history.state.wm){history.back();return;}}
+      else if(ui.tab==="home"){try{history.pushState({wm:nt},"");}catch(x){}}
+      else{try{history.replaceState({wm:nt},"");}catch(x){}}
+      ui.tab=nt;ui.modal=null;render();window.scrollTo(0,0);return;}
     if((el=t.closest("[data-mode]"))){ui.mode=el.dataset.mode;render();return;}
     if((el=t.closest("[data-slot]"))){var p=el.dataset.slot.split("|");open({type:"slot",day:+p[0],meal:p[1],q:""});return;}
     if((el=t.closest("[data-tslot]"))){var q=el.dataset.tslot.split("|");open({type:"slot",tpl:q[0],day:+q[1],meal:q[2],q:""});return;}
@@ -771,6 +833,7 @@ window.startApp=function(backend){
     user.profiles(ids).then(function(ps){ids.forEach(function(id){var p=ps&&ps[id];if(p&&p.name)names[id]=p.name.split(" ")[0];});render();},function(){});
   }
   var bootT=Date.now();
+  window.addEventListener("popstate",function(e){var st=e.state&&e.state.wm;if(ui.modal){ui.modal=null;}ui.tab=st||"home";render();window.scrollTo(0,0);});
   function notifyPartner(oldW,newW){
     var k=weekKey(ui.offset),a=oldW[k]||{},b=newW[k]||{},msgs=[];
     var ob=a.by||{},nb=b.by||{};

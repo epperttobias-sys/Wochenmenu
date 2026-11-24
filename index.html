@@ -2,6 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
+<meta name="app-version" content="20261124-2136">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -272,6 +273,8 @@ img.logo{display:block;object-fit:cover;padding:0}
   .recipe .acts{flex-wrap:wrap}
   .recipe .tag{font-size:10.5px}
 }
+.updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));z-index:50;border:0;background:var(--accent);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;box-shadow:var(--shadow-lg);white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:681px){.updbar{bottom:24px}}
 </style>
 </head>
 <body>
@@ -814,6 +817,29 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
   }
   sb.auth.getSession().then(function(r){boot(r.data&&r.data.session);});
   
+})();
+
+</script>
+<script>
+// ---------- Update-Erkennung ----------
+(function(){
+  var V=document.querySelector('meta[name="app-version"]');V=V&&V.content;if(!V||!window.fetch)return;
+  var shown=false,last=0;
+  function check(){
+    var now=Date.now();if(shown||now-last<60000)return;last=now;
+    fetch(location.pathname+"?check="+now,{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
+      var m=t.match(/<meta name="app-version" content="([^"]+)"/);
+      if(m&&m[1]!==V)show();
+    }).catch(function(){});
+  }
+  function show(){
+    shown=true;var b=document.createElement("button");b.className="updbar";b.innerHTML="✨ Neue Version verfügbar – <b>tippen zum Aktualisieren</b>";
+    b.onclick=function(){location.replace(location.pathname+"?v="+Date.now());};document.body.appendChild(b);
+  }
+  if(/[?&]v=\d+/.test(location.search))history.replaceState(null,"",location.pathname+location.hash);
+  setTimeout(check,3000);
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")check();});
+  setInterval(check,15*60000);
 })();
 
 </script>

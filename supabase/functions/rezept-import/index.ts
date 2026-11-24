@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Wochenmenü – Supabase Edge Function «rezept-import»
 // Holt ein Rezept von einem Link (z. B. fooby.ch) und gibt Name, Portionen und Zutaten zurück.
 // Nur für eingeloggte Mitglieder (Familien-Code) nutzbar.

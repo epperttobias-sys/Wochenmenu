@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2210">
+<meta name="app-version" content="20261124-2213">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -740,7 +740,7 @@ window.startApp=function(backend){
       var key=weekKey(ui.offset),w=week(key),used={},days={};
       Object.keys(w.days||{}).forEach(function(i){MEALS.forEach(function(m){var v=slotOf(w.days,i,m[0]);if(v&&v.id)used[v.id]=1;});});
       var pool=shuffle(all.filter(function(id){return !used[id];}));
-      for(var i=0;i<7;i++){if(slotOf(w.days,i,"abend"))continue;if(!pool.length)pool=shuffle(all.slice());days[i]={abend:{id:pool.pop()}};}
+      for(var i=0;i<7;i++){if(slotOf(w.days,i,"abend"))continue;if(!pool.length)pool=shuffle(all.slice());days[i]={abend:{id:pool.pop(),text:null,by:{e:me,t:Date.now()}}};}
       if(!Object.keys(days).length){toast("Alle Abende sind schon geplant.");return;}
       weekPatch(key,{days:days});toast("Leere Abende gefüllt.");
     },

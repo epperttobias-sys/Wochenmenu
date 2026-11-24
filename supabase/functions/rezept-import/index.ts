@@ -113,7 +113,7 @@ export function parseRecipe(html) {
 // ---------- Ist die anfragende Person Mitglied? ----------
 async function isMember(req) {
   const auth = req.headers.get("Authorization") || "";
-  const url = Deno.env.get("SUPABASE_URL"), key = Deno.env.get("SUPABASE_ANON_KEY");
+  const url = Deno.env.get("SUPABASE_URL"), key = req.headers.get("apikey") || Deno.env.get("SUPABASE_ANON_KEY");
   if (!auth || !url || !key) return false;
   const r = await fetch(url + "/rest/v1/rpc/is_member", { method: "POST", headers: { Authorization: auth, apikey: key, "Content-Type": "application/json" }, body: "{}" });
   if (!r.ok) return false;

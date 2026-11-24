@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2213">
+<meta name="app-version" content="20261124-2217">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -340,6 +340,14 @@ img.logo{display:block;object-fit:cover;padding:0}
 @media (max-width:680px){.wrap{padding-bottom:calc(24px + env(safe-area-inset-bottom))}.toast,.updbar{bottom:calc(20px + env(safe-area-inset-bottom))}}
 .svwrap{position:relative;flex:none;display:inline-flex}
 .svwrap .who-b{position:absolute;right:-6px;bottom:-6px;box-shadow:0 0 0 2px #fff}
+.osugs{display:flex;flex-direction:column;gap:6px}
+.osug{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:8px 10px;text-align:left}
+.osug:hover{border-color:var(--accent);background:var(--accent-soft)}
+.osug .svwrap .who-b{width:16px;height:16px;font-size:9px;right:-5px;bottom:-5px}
+.os-t{display:flex;flex-direction:column;flex:1;min-width:0}
+.os-t b{font-size:14.5px}
+.os-t small{color:var(--muted);font-size:12px}
+.os-go{font-size:12.5px;font-weight:700;color:var(--accent);flex:none}
 </style>
 </head>
 <body>
@@ -678,7 +686,18 @@ window.startApp=function(backend){
         h+='<div class="seg"><button class="'+(mode==="set"?"on":"")+'" data-mode="set">Festlegen</button><button class="'+(mode==="suggest"?"on":"")+'" data-mode="suggest">Vorschlagen</button></div>';
         h+='<div class="muted small">'+(mode==="set"?"Wähle ein Gericht – es wird direkt eingeplant.":"Wähle ein Gericht – es erscheint als Vorschlag, über den ihr abstimmen könnt.")+'</div>';
       }
-      h+='<div class="field"><input data-filter placeholder="Suchen …" value="'+esc(m.q||"")+'" autofocus></div>'+pickList(mode==="set"?v.id:null,m.q);
+      if(!t&&mode==="set"){
+        var here=sugFor(weekKey(ui.offset),m.day,m.meal).map(function(x){return x.id;});
+        var others=sugList().filter(function(x){return here.indexOf(x.id)<0;});
+        others.sort(function(a,b){var A=a.week?1:0,B=b.week?1:0;return A-B||(b.at||0)-(a.at||0);});
+        if(others.length){
+          h+='<h3 class="gh">Eure Vorschläge</h3><div class="osugs">'+others.map(function(x){var r=x.recipeId?recipe(x.recipeId):null,n=r?r.name:x.text||"?";var vv=x.votes||{},up=0;Object.keys(vv).forEach(function(k){if(vv[k]===1)up++;});
+            var wh=x.week?("KW "+kwOf(x.week)+" · "+DAYS[x.day].slice(0,2)+" "+(x.meal==="mittag"?"Mittag":"Abend")):"Idee für irgendwann";
+            return '<button class="osug" data-usesugg="'+x.id+'"><span class="svwrap">'+vis(x.recipeId,n,"pvis")+badge({e:x.by,t:x.at},false)+'</span><span class="os-t"><b>'+esc(n)+'</b><small>'+esc(wh)+(up?' · 👍 '+up:'')+'</small></span><span class="os-go">Einplanen</span></button>';}).join("")+'</div>';
+        }
+        h+='<h3 class="gh">Alle Gerichte</h3>';
+      }
+      h+='<div class="field" style="margin-top:6px"><input data-filter placeholder="Suchen …" value="'+esc(m.q||"")+'" autofocus></div>'+pickList(mode==="set"?v.id:null,m.q);
       h+='<form data-form="free" class="field"><label>Oder freier Text (z. B. «Auswärts», «Resten»)</label><div style="display:flex;gap:8px"><input name="t" style="flex:1" value="'+(mode==="set"?esc(v.text||""):"")+'"><button class="btn">OK</button></div></form>';
       h+='<div class="row">'+(mode==="set"&&(v.id||v.text)?'<button class="btn ghost" data-a="clearslot">Feld leeren</button>':'')+'<button class="btn" data-a="close">Schliessen</button></div>';
     } else if(m.type==="newsugg"){
@@ -778,6 +797,7 @@ window.startApp=function(backend){
     if((el=t.closest("[data-pick]"))){pick({id:el.dataset.pick});return;}
     if((el=t.closest("[data-apply]"))){applyTpl(el.dataset.apply);return;}
     if((el=t.closest("[data-vote]"))){var vv=el.dataset.vote.split("|"),s=D.sugg[vv[0]];if(!s)return;var val=+vv[1],patch={votes:{}};patch.votes[me]=(s.votes&&s.votes[me]===val)?null:val;write("suggestions/"+vv[0],function(r){return r.update(patch);});return;}
+    if((el=t.closest("[data-usesugg]"))){var mm=ui.modal;acceptSugg(el.dataset.usesugg,mm.day,mm.meal,weekKey(ui.offset));ui.modal=null;render();return;}
     if((el=t.closest("[data-accept]"))){acceptSugg(el.dataset.accept);if(ui.modal){ui.modal=null;}render();return;}
     if((el=t.closest("[data-plan]"))){var id=el.dataset.plan,dd=document.querySelector('[data-pday="'+id+'"]').value,mm=document.querySelector('[data-pmeal="'+id+'"]').value;acceptSugg(id,+dd,mm,weekKey(ui.offset));render();return;}
     if((el=t.closest("[data-sdel]"))){var sid=el.dataset.sdel;write("suggestions/"+sid,function(r){return r.delete();});return;}

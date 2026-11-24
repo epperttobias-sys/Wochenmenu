@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2148">
+<meta name="app-version" content="20261124-2152">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -287,6 +287,24 @@ img.logo{display:block;object-fit:cover;padding:0}
 .catchips{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px;margin-bottom:6px}
 .tile.cat.recent{background:#fff}
 .tile.cat.recent .te{filter:grayscale(.25)}
+
+/* ---------- Kopf: kompakte Wochenwahl ---------- */
+.sub.wk{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin-top:2px}
+.wkb{border:0;background:transparent;width:28px;height:28px;border-radius:50%;font-size:20px;line-height:1;color:var(--ink2);display:grid;place-items:center;padding:0}
+.wkb:hover{background:#e9ecf0}
+.wkback{border:0;background:var(--accent-soft);color:var(--accent-ink);font-weight:600;font-size:12px;padding:3px 9px;border-radius:999px;margin-left:6px}
+
+/* ---------- Wer hat's eingetragen ---------- */
+.tile{position:relative}
+.who-b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;background:#8a919c;line-height:1;flex:none}
+.who-b.p0{background:#2563eb}
+.who-b.p1{background:#db2777}
+.tile .who-b{position:absolute;top:7px;right:7px;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
+.tile.fresh{box-shadow:0 0 0 3px #ffb020,0 2px 6px rgba(26,138,90,.25)}
+.who-b.isnew::after{content:"neu";position:absolute;top:-8px;left:-26px;background:#ffb020;color:#3b2a00;font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:6px;text-transform:uppercase}
+.tile .tsub{font-size:10px;font-weight:500;opacity:.75;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;margin-top:-3px}
+.slot .meal{display:flex;align-items:center;gap:6px}
+.slot .meal .who-b{width:17px;height:17px;font-size:9.5px;margin-left:auto}
 </style>
 </head>
 <body>
@@ -315,6 +333,8 @@ window.startApp=function(backend){
   function week(key){return D.weeks[key]||{days:{},extra:[],checked:{}};}
   function slotOf(days,day,meal){var d=days&&days[day];return d&&d[meal]||null;}
   function label(v){if(!v)return "";if(v.id){var r=recipe(v.id);return r?r.name:"";}return v.text||"";}
+  function personIdx(id){var ms=(backend.members||[]).map(function(m){return String(m.email).toLowerCase();});var i=ms.indexOf(String(id||"").toLowerCase());return i<0?9:i;}
+  function badge(by,isNew){if(!by||!by.e)return "";var nm=nameOf(by.e)==="Du"?(names[me]||"Du"):nameOf(by.e);return '<span class="who-b p'+personIdx(by.e)+(isNew?" isnew":"")+'" title="Eingetragen von '+esc(nm)+'">'+esc(nm.charAt(0).toUpperCase())+'</span>';}
   function nameOf(id){if(id&&id===me)return "Du";return names[id]||"Partner:in";}
   function sugList(){return Object.keys(D.sugg).map(function(k){return D.sugg[k];}).sort(function(a,b){return (b.at||0)-(a.at||0);});}
   function sugFor(wk,day,meal){return sugList().filter(function(s){return s.week===wk&&s.day===day&&s.meal===meal;});}
@@ -332,7 +352,7 @@ window.startApp=function(backend){
     });
     chains[path]=p;return p;
   }
-  function norm(v){return v?{id:v.id||null,text:v.text||null}:null;}
+  function norm(v){return v?{id:v.id||null,text:v.text||null,by:v.by||{e:me,t:Date.now()}}:null;}
   function setSlotWeek(key,day,meal,val){val=norm(val);
     var ex=D.weeks[key], patch={days:{}}; patch.days[day]={}; patch.days[day][meal]=val||null;
     if(ex)write("weeks/"+key,function(r){return r.update(patch);});
@@ -409,8 +429,7 @@ window.startApp=function(backend){
     var a=document.activeElement, keep=null;
     if(a&&app.contains(a)&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.type!=="checkbox"){keep={sel:a.hasAttribute("data-filter")?"[data-filter]":a.name?'[name="'+a.name+'"]':null,val:a.value,s:a.selectionStart,e:a.selectionEnd};}
     var mon=monday(ui.offset),sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var h='<div class="wrap"><header class="top"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>Wochenmenü</h1><div class="sub">KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</div></div></div>'+
-      '<div class="weeknav"><button class="nav-ic" data-a="prev" aria-label="Vorherige Woche">‹</button><button class="todaybtn'+(ui.offset===0?" on":"")+'" data-a="thisweek">Diese Woche</button><button class="nav-ic" data-a="next" aria-label="Nächste Woche">›</button></div></header>';
+    var h='<div class="wrap"><header class="top"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>Wochenmenü</h1><div class="sub wk"><button class="wkb" data-a="prev" aria-label="Vorherige Woche">‹</button><span>KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</span><button class="wkb" data-a="next" aria-label="Nächste Woche">›</button>'+(ui.offset!==0?'<button class="wkback" data-a="thisweek">zurück zu heute</button>':'')+'</div></div></div></header>';
     if(conn==="nodb"){app.innerHTML=h+'<div class="card empty-state">Die Datenbank ist gerade nicht erreichbar. Bitte lade die Seite neu.</div></div>';return;}
     var allLoaded=loaded.recipes&&loaded.templates&&loaded.weeks&&loaded.sugg;
     var nNew=sugList().filter(isNew).length, nAll=Object.keys(D.sugg).length;
@@ -438,7 +457,7 @@ window.startApp=function(backend){
       MEALS.forEach(function(m){
         var name=label(slotOf(w.days,i,m[0])),sg=sugFor(key,i,m[0]),nn=sg.filter(isNew).length;
         var sv=slotOf(w.days,i,m[0]);
-        h+='<button class="slot'+(name?" filled hasph":"")+'" data-slot="'+i+'|'+m[0]+'">'+(name?vis(sv&&sv.id,name,"sph"):'')+'<span class="meal">'+m[1]+'</span>'+(name?'<span class="dish">'+esc(name)+'</span>':'<span class="empty">Hinzufügen</span>')+(sg.length?'<span class="chip'+(nn?" hot":"")+'">'+sg.length+' Vorschlag'+(sg.length>1?"e":"")+'</span>':'')+'</button>';
+        h+='<button class="slot'+(name?" filled hasph":"")+'" data-slot="'+i+'|'+m[0]+'">'+(name?vis(sv&&sv.id,name,"sph"):'')+'<span class="meal">'+m[1]+(name&&sv&&sv.by?badge(sv.by,false):'')+'</span>'+(name?'<span class="dish">'+esc(name)+'</span>':'<span class="empty">Hinzufügen</span>')+(sg.length?'<span class="chip'+(nn?" hot":"")+'">'+sg.length+' Vorschlag'+(sg.length>1?"e":"")+'</span>':'')+'</button>';
       });
       h+='</section>';
     });
@@ -468,7 +487,7 @@ window.startApp=function(backend){
     var w=week(key),map={};
     Object.keys(w.days||{}).forEach(function(i){MEALS.forEach(function(m){
       var v=slotOf(w.days,i,m[0]);if(!v||!v.id)return;var r=recipe(v.id);if(!r)return;
-      (r.ingredients||[]).forEach(function(ing){var k=String(ing).trim();if(!k)return;var kk=k.toLowerCase();if(!map[kk])map[kk]={name:k,dishes:[]};if(map[kk].dishes.indexOf(r.name)<0)map[kk].dishes.push(r.name);});
+      (r.ingredients||[]).forEach(function(ing){var k=String(ing).trim();if(!k)return;var kk=k.toLowerCase();if(!map[kk])map[kk]={name:k,dishes:[],by:v.by||null};if(map[kk].dishes.indexOf(r.name)<0)map[kk].dishes.push(r.name);if(v.by&&(!map[kk].by||v.by.t>map[kk].by.t))map[kk].by=v.by;});
     });});
     return Object.keys(map).sort(function(a,b){return a.localeCompare(b,"de");}).map(function(k){return map[k];});
   }
@@ -499,12 +518,14 @@ window.startApp=function(backend){
   var CATORDER=CATS.map(function(c){return c[0];}).concat(["andere"]);
   function shopAll(key){
     var w=week(key),chk=w.checked||{},out=[];
-    shopItems(key).forEach(function(it){var k=it.name.toLowerCase();out.push({k:k,name:it.name,sub:it.dishes.join(", "),on:!!chk[k],cl:classify(it.name)});});
-    (w.extra||[]).forEach(function(e,idx){var k="x:"+e.toLowerCase();out.push({k:k,name:e,sub:"",on:!!chk[k],cl:classify(e),idx:idx});});
+    var bym=w.by||{};
+    shopItems(key).forEach(function(it){var k=it.name.toLowerCase();out.push({k:k,name:it.name,sub:it.dishes.join(", "),on:!!chk[k],cl:classify(it.name),by:it.by});});
+    (w.extra||[]).forEach(function(e,idx){var k="x:"+e.toLowerCase();out.push({k:k,name:e,sub:"",on:!!chk[k],cl:classify(e),idx:idx,by:bym[k]||null});});
     return out;
   }
   function tile(it){
-    return '<button class="tile'+(it.on?" got":"")+'" data-tile="'+esc(it.k)+'" title="'+esc(it.sub||it.name)+'"><span class="te">'+it.cl.icon+'</span><span class="tn">'+esc(it.name)+'</span>'+(it.idx!=null&&!it.on?'':'')+'</button>';
+    var nw=it.by&&it.by.e!==me&&it.by.t>(ui.prevSeen||0);
+    return '<button class="tile'+(it.on?" got":"")+(nw?" fresh":"")+'" data-tile="'+esc(it.k)+'" title="'+esc((it.sub?it.sub+" · ":"")+(it.by?"von "+nameOf(it.by.e):""))+'">'+(it.on?"":badge(it.by,nw))+'<span class="te">'+it.cl.icon+'</span><span class="tn">'+esc(it.name)+'</span>'+(it.sub?'<span class="tsub">'+esc(it.sub)+'</span>':'')+'</button>';
   }
   var CATALOG={"gemuese": ["🍎 Äpfel", "🍏 Grüne Äpfel", "🍐 Birnen", "🍌 Bananen", "🍊 Orangen", "🍊 Blutorangen", "🍊 Mandarinen", "🍊 Clementinen", "🍋 Zitronen", "🍋 Limetten", "🍊 Grapefruit", "🍇 Trauben", "🍇 Weisse Trauben", "🍓 Erdbeeren", "🫐 Heidelbeeren", "🫐 Himbeeren", "🫐 Brombeeren", "🍇 Johannisbeeren", "🍒 Kirschen", "🍑 Pfirsiche", "🍑 Nektarinen", "🍑 Aprikosen", "🍑 Zwetschgen", "🍑 Pflaumen", "🥝 Kiwi", "🍍 Ananas", "🥭 Mango", "🍉 Wassermelone", "🍈 Honigmelone", "🥥 Kokosnuss", "🍈 Papaya", "🍈 Passionsfrucht", "🍎 Granatapfel", "🍈 Feigen", "🍈 Datteln", "🍇 Rosinen", "🍎 Quitten", "🍈 Litschi", "🍈 Physalis", "🍈 Kaki", "🥑 Avocado", "🍅 Tomaten", "🍅 Cherrytomaten", "🍅 Rispentomaten", "🍅 Fleischtomaten", "🥒 Gurke", "🥕 Karotten", "🥕 Pastinaken", "🥕 Randen", "🥕 Radieschen", "🥕 Rettich", "🧅 Zwiebeln", "🧅 Rote Zwiebeln", "🧅 Frühlingszwiebeln", "🧅 Schalotten", "🧄 Knoblauch", "🥔 Kartoffeln", "🥔 Festkochende Kartoffeln", "🥔 Mehligkochende Kartoffeln", "🍠 Süsskartoffeln", "🥬 Blattsalat", "🥬 Kopfsalat", "🥬 Eisbergsalat", "🥬 Lattich", "🥬 Nüsslisalat", "🥬 Rucola", "🥬 Cicorino", "🥬 Endivie", "🥬 Chinakohl", "🥬 Spinat", "🥬 Mangold", "🥬 Lauch", "🥦 Broccoli", "🥦 Blumenkohl", "🥦 Romanesco", "🥬 Rosenkohl", "🥬 Weisskohl", "🥬 Rotkohl", "🥬 Wirz", "🥬 Federkohl", "🥬 Kohlrabi", "🥬 Fenchel", "🥬 Stangensellerie", "🥬 Knollensellerie", "🍆 Aubergine", "🥒 Zucchetti", "🫑 Peperoni rot", "🫑 Peperoni gelb", "🫑 Peperoni grün", "🌶️ Chili", "🍄 Champignons", "🍄 Braune Champignons", "🍄 Steinpilze", "🍄 Eierschwämmli", "🍄 Shiitake", "🌽 Mais", "🌽 Maiskolben", "🫛 Erbsen", "🫛 Zuckerschoten", "🫛 Grüne Bohnen", "🫛 Edamame", "🥬 Spargel grün", "🥬 Spargel weiss", "🎃 Kürbis", "🎃 Butternut", "🫚 Ingwer", "🫚 Kurkuma frisch", "🌿 Basilikum", "🌿 Petersilie", "🌿 Schnittlauch", "🌿 Koriander", "🌿 Dill", "🌿 Minze", "🌿 Rosmarin", "🌿 Thymian", "🌿 Salbei", "🌿 Oregano frisch", "🌱 Sprossen", "🥬 Artischocken", "🫒 Oliven"], "brot": ["🍞 Brot", "🍞 Ruchbrot", "🍞 Halbweissbrot", "🍞 Weissbrot", "🍞 Vollkornbrot", "🍞 Roggenbrot", "🍞 Dinkelbrot", "🍞 Bauernbrot", "🍞 Tessinerbrot", "🍞 Pain Paillasse", "🍞 Sauerteigbrot", "🍞 Körnerbrot", "🍞 Toastbrot", "🍞 Vollkorntoast", "🥖 Baguette", "🥖 Ciabatta", "🥖 Focaccia", "🥐 Gipfeli", "🥐 Buttergipfeli", "🥐 Laugengipfeli", "🥐 Schoggigipfeli", "🥨 Brezel", "🥨 Laugenbrötli", "🥯 Bagels", "🍞 Zopf", "🍞 Butterzopf", "🍞 Weggli", "🍞 Silserli", "🍞 Mütschli", "🍞 Burgerbrötli", "🍞 Hotdog-Brötli", "🍞 Knäckebrot", "🍪 Zwieback", "🍞 Grissini", "🫓 Pita", "🫓 Fladenbrot", "🫓 Naan", "🫓 Tortillas", "🫓 Wraps", "🫓 Pizzateig", "🫓 Kuchenteig", "🫓 Blätterteig", "🫓 Mürbeteig", "🫓 Strudelteig", "🫓 Flammkuchenteig", "🧁 Muffins", "🍩 Berliner", "🍩 Donuts", "🍰 Kuchen", "🍰 Rüeblitorte", "🍰 Cremeschnitte", "🥧 Wähe", "🍪 Mailänderli", "🍪 Brunsli", "🥐 Croissants"], "milch": ["🥛 Milch", "🥛 Vollmilch", "🥛 Milchdrink", "🥛 Magermilch", "🥛 Laktosefreie Milch", "🥛 Hafermilch", "🥛 Mandelmilch", "🥛 Sojamilch", "🥛 Reismilch", "🥛 Rahm", "🥛 Vollrahm", "🥛 Halbrahm", "🥛 Saucenhalbrahm", "🥛 Kaffeerahm", "🥛 Sauerrahm", "🥛 Crème fraîche", "🥛 Mascarpone", "🥛 Quark", "🥛 Halbfettquark", "🥛 Joghurt nature", "🥛 Griechisches Joghurt", "🥛 Fruchtjoghurt", "🥛 Trinkjoghurt", "🥛 Skyr", "🥛 Buttermilch", "🥛 Kefir", "🍮 Pudding", "🍮 Caramelköpfli", "🧈 Butter", "🧈 Kochbutter", "🧈 Margarine", "🥚 Eier", "🥚 Freilandeier", "🧀 Gruyère", "🧀 Emmentaler", "🧀 Appenzeller", "🧀 Tilsiter", "🧀 Sbrinz", "🧀 Tête de Moine", "🧀 Vacherin Fribourgeois", "🧀 Raclettekäse", "🧀 Fondue-Mischung", "🧀 Reibkäse", "🧀 Parmesan", "🧀 Grana Padano", "🧀 Pecorino", "🧀 Mozzarella", "🧀 Burrata", "🧀 Feta", "🧀 Halloumi", "🧀 Ricotta", "🧀 Hüttenkäse", "🧀 Frischkäse", "🧀 Philadelphia", "🧀 Brie", "🧀 Camembert", "🧀 Gorgonzola", "🧀 Roquefort", "🧀 Ziegenkäse", "🧀 Cheddar", "🧀 Gouda", "🧀 Edamer", "🧀 Scheibenkäse", "🧀 Schmelzkäse", "🌱 Tofu", "🌱 Seidentofu", "🌱 Veganer Käse", "🌱 Vegane Butter"], "fleisch": ["🥩 Hackfleisch gemischt", "🥩 Rindshackfleisch", "🥩 Rindsplätzli", "🥩 Rindsfilet", "🥩 Entrecôte", "🥩 Rindsvoressen", "🥩 Siedfleisch", "🥩 Rindsbraten", "🥩 Schweinsplätzli", "🥩 Schweinsfilet", "🥩 Schweinskoteletts", "🥩 Schweinsbraten", "🥩 Schweinshals", "🥩 Spareribs", "🥩 Kalbsplätzli", "🥩 Kalbsgeschnetzeltes", "🥩 Geschnetzeltes", "🥩 Kalbsbratwurst", "🥩 Lammkoteletts", "🥩 Lammgigot", "🍗 Pouletbrust", "🍗 Pouletschenkel", "🍗 Pouletflügeli", "🍗 Ganzes Poulet", "🍗 Pouletgeschnetzeltes", "🍗 Truthahnbrust", "🦆 Ente", "🥓 Speck", "🥓 Speckwürfeli", "🥓 Bratspeck", "🥓 Rohschinken", "🥓 Kochschinken", "🥓 Hinterschinken", "🥓 Bündnerfleisch", "🥓 Salami", "🥓 Coppa", "🥓 Mortadella", "🌭 Cervelat", "🌭 Bratwurst", "🌭 Wienerli", "🌭 Schüblig", "🌭 Landjäger", "🌭 Chorizo", "🍖 Fleischkäse", "🍖 Leberkäse", "🍖 Hackbraten", "🐟 Lachsfilet", "🐟 Rauchlachs", "🐟 Forelle", "🐟 Egli", "🐟 Kabeljau", "🐟 Dorsch", "🐟 Zander", "🐟 Pangasius", "🐟 Seelachs", "🐟 Thunfisch frisch", "🐟 Thon (Dose)", "🐟 Sardinen", "🐟 Sardellen", "🍤 Crevetten", "🍤 Riesencrevetten", "🦑 Tintenfisch", "🦪 Muscheln", "🦞 Hummer", "🌱 Vegi-Hack", "🌱 Vegi-Burger", "🌱 Planted Chicken", "🌱 Quorn", "🌱 Seitan", "🌱 Tempeh", "🍤 Surimi"], "vorrat": ["🍝 Spaghetti", "🍝 Spaghettini", "🍝 Penne", "🍝 Hörnli", "🍝 Fusilli", "🍝 Farfalle", "🍝 Tagliatelle", "🍝 Linguine", "🍝 Rigatoni", "🍝 Lasagneblätter", "🍝 Cannelloni", "🍝 Orzo", "🍝 Vollkornpasta", "🍝 Glutenfreie Pasta", "🍝 Frische Ravioli", "🍝 Tortellini", "🍝 Gnocchi", "🍝 Spätzli", "🍝 Knöpfli", "🍜 Eiernudeln", "🍜 Reisnudeln", "🍜 Ramen", "🍚 Reis", "🍚 Basmatireis", "🍚 Jasminreis", "🍚 Risottoreis", "🍚 Vollkornreis", "🍚 Wildreis", "🍚 Sushireis", "🌾 Quinoa", "🌾 Couscous", "🌾 Bulgur", "🌾 Polenta", "🌾 Hirse", "🌾 Rollgerste", "🌾 Weissmehl", "🌾 Halbweissmehl", "🌾 Vollkornmehl", "🌾 Dinkelmehl", "🌾 Maizena", "🌾 Paniermehl", "🥣 Haferflocken", "🥣 Müesli", "🥣 Birchermüesli", "🥣 Granola", "🥣 Cornflakes", "🥣 Porridge", "🍬 Zucker", "🍬 Rohzucker", "🍬 Puderzucker", "🍬 Hagelzucker", "🍯 Honig", "🍯 Ahornsirup", "🍯 Agavendicksaft", "🍓 Konfitüre", "🍓 Erdbeerkonfitüre", "🍑 Aprikosenkonfitüre", "🍊 Orangenmarmelade", "🍫 Nutella", "🥜 Erdnussbutter", "🧂 Salz", "🧂 Meersalz", "🧂 Fleur de Sel", "🧂 Pfeffer", "🧂 Pfeffer bunt", "🧂 Paprikapulver", "🧂 Paprika geräuchert", "🧂 Currypulver", "🧂 Kurkuma", "🧂 Kreuzkümmel", "🧂 Kümmel", "🧂 Zimt", "🧂 Muskatnuss", "🧂 Nelken", "🧂 Kardamom", "🧂 Chiliflocken", "🧂 Cayennepfeffer", "🧂 Knoblauchpulver", "🧂 Zwiebelpulver", "🧂 Oregano", "🧂 Basilikum getrocknet", "🧂 Thymian getrocknet", "🧂 Rosmarin getrocknet", "🧂 Lorbeerblätter", "🧂 Kräuter der Provence", "🧂 Italienische Kräuter", "🧂 Aromat", "🧂 Garam Masala", "🧂 Ras el Hanout", "🧂 Vanilleschote", "🍮 Vanillezucker", "🧁 Backpulver", "🧁 Hefe", "🧁 Trockenhefe", "🧁 Natron", "🧁 Gelatine", "🍫 Kakaopulver", "🍫 Kochschokolade", "🍫 Schokoladenstreusel", "🥜 Mandeln gemahlen", "🥜 Haselnüsse gemahlen", "🥫 Gemüsebouillon", "🥫 Hühnerbouillon", "🥫 Rindsbouillon", "🥫 Fondor", "🥫 Pelati", "🥫 Passata", "🥫 Tomatenpüree", "🥫 Getrocknete Tomaten", "🥫 Kokosmilch", "🥫 Currypaste rot", "🥫 Currypaste grün", "🥫 Pesto", "🥫 Pesto rosso", "🥫 Tomatensauce", "🥫 Sugo", "🫘 Kichererbsen", "🫘 Kidneybohnen", "🫘 Weisse Bohnen", "🫘 Schwarze Bohnen", "🫘 Rote Linsen", "🫘 Grüne Linsen", "🌽 Mais (Dose)", "🥫 Champignons (Dose)", "🥫 Artischockenherzen", "🥫 Kapern", "🥒 Essiggurken", "🧅 Silberzwiebeln", "🫒 Oliven grün", "🫒 Oliven schwarz", "🫒 Olivenöl", "🫒 Rapsöl", "🫒 Sonnenblumenöl", "🫒 Sesamöl", "🍶 Weissweinessig", "🍶 Apfelessig", "🍶 Balsamico", "🍶 Aceto Balsamico Crema", "🍶 Sojasauce", "🍶 Fischsauce", "🍶 Worcestershiresauce", "🍶 Sweet-Chili-Sauce", "🍶 Tabasco", "🍶 Sriracha", "🥫 Senf", "🥫 Dijonsenf", "🥫 Ketchup", "🥫 Mayonnaise", "🥫 Thomy", "🥫 Salatsauce", "🥫 French Dressing", "🥫 Barbecuesauce", "🥫 Tahin", "🥫 Hummus", "🥜 Nüsse", "🥜 Baumnüsse", "🥜 Haselnüsse", "🥜 Mandeln", "🥜 Cashewnüsse", "🥜 Pinienkerne", "🌻 Sonnenblumenkerne", "🎃 Kürbiskerne", "🌱 Chiasamen", "🌱 Leinsamen", "🌱 Sesam"], "suess": ["🍫 Schokolade", "🍫 Milchschokolade", "🍫 Dunkle Schokolade", "🍫 Weisse Schokolade", "🍫 Schoggistängeli", "🍫 Toblerone", "🍫 Ragusa", "🍫 Branchli", "🍬 Bonbons", "🍬 Gummibärli", "🍬 Kaugummi", "🍭 Lutscher", "🍪 Guetzli", "🍪 Butterguetzli", "🍪 Schoggiguetzli", "🍪 Petit Beurre", "🍪 Willisauer Ringli", "🍪 Läckerli", "🍪 Biber", "🍪 Waffeln", "🍪 Kägi fret", "🍪 Darvida", "🍿 Chips", "🍿 Paprikachips", "🍿 Popcorn", "🥨 Salzstängeli", "🥨 Bretzeli", "🥜 Erdnüsse", "🥜 Studentenfutter", "🍫 Müesliriegel", "🍫 Proteinriegel", "🍦 Glacestängel", "🍰 Meringues", "🧁 Cupcakes", "🍮 Tiramisu"], "getraenke": ["💧 Mineralwasser", "💧 Wasser ohne Kohlensäure", "💧 Wasser mit wenig Kohlensäure", "🧃 Orangensaft", "🧃 Apfelsaft", "🧃 Süssmost", "🧃 Multivitaminsaft", "🧃 Traubensaft", "🧃 Ananassaft", "🧃 Tomatensaft", "🧃 Smoothie", "🧃 Sirup", "🧃 Holundersirup", "🥤 Rivella rot", "🥤 Rivella blau", "🥤 Cola", "🥤 Cola Zero", "🥤 Fanta", "🥤 Sprite", "🥤 Ginger Ale", "🥤 Tonic Water", "🥤 Eistee", "🥤 Eistee Pfirsich", "🥤 Ovomaltine", "🥤 Energydrink", "☕ Kaffeebohnen", "☕ Gemahlener Kaffee", "☕ Kaffeekapseln", "☕ Instantkaffee", "☕ Entkoffeinierter Kaffee", "🍵 Schwarztee", "🍵 Grüntee", "🍵 Pfefferminztee", "🍵 Kamillentee", "🍵 Früchtetee", "🍵 Kräutertee", "🍵 Eisteepulver", "🍫 Kakao", "🍷 Rotwein", "🍷 Weisswein", "🍷 Rosé", "🥂 Prosecco", "🥂 Champagner", "🍾 Schaumwein", "🍺 Bier", "🍺 Alkoholfreies Bier", "🍺 Panaché", "🍹 Apérol", "🍸 Gin", "🥃 Whisky", "🍸 Vodka", "🍶 Kirsch", "🍶 Grappa", "🧃 Alkoholfreier Wein"], "tk": ["🍟 Pommes frites", "🍟 Kroketten", "🍟 Rösti (TK)", "🍟 Kartoffelstock", "🍕 Tiefkühlpizza", "🍕 Flammkuchen", "🥦 TK-Gemüse", "🥦 TK-Broccoli", "🫛 TK-Erbsen", "🥬 TK-Spinat", "🌽 TK-Mais", "🥗 TK-Gemüsemischung", "🫐 TK-Beeren", "🐟 Fischstäbli", "🐟 TK-Lachs", "🍤 TK-Crevetten", "🍗 Chicken Nuggets", "🥟 Frühlingsrollen", "🥟 Dumplings", "🥟 Gyoza", "🍝 TK-Lasagne", "🍦 Glace", "🍦 Sorbet", "🍦 Cornet", "🧊 Eiswürfel", "🍞 TK-Brötli", "🥐 TK-Gipfeli"], "haushalt": ["🧻 WC-Papier", "🧻 Haushaltpapier", "🧻 Taschentücher", "🧻 Servietten", "🧽 Spülmittel", "🧽 Schwämme", "🧽 Abwaschbürste", "🫧 Geschirrspültabs", "🫧 Klarspüler", "🫧 Regeneriersalz", "🧼 Waschmittel", "🧼 Flüssigwaschmittel", "🧼 Feinwaschmittel", "🧼 Weichspüler", "🧼 Fleckenentferner", "🧴 Allzweckreiniger", "🧴 Badreiniger", "🧴 WC-Reiniger", "🧴 Glasreiniger", "🧴 Entkalker", "🧴 Bodenreiniger", "🧴 Desinfektionsmittel", "🧹 Putzlappen", "🧹 Mikrofasertücher", "🧤 Gummihandschuhe", "🗑️ Abfallsäcke 35 l", "🗑️ Abfallsäcke 17 l", "🗑️ Kompostsäckli", "🍪 Alufolie", "🍪 Frischhaltefolie", "🍪 Backpapier", "🛍️ Gefrierbeutel", "🛍️ Zipbeutel", "🧺 Wäscheklammern", "🔋 Batterien AA", "🔋 Batterien AAA", "💡 Glühbirnen", "🕯️ Kerzen", "🕯️ Teelichter", "🔥 Zündhölzer", "🔥 Feueranzünder", "🦟 Insektenspray", "🧷 Klebeband", "📦 Kehrichtmarken"], "pflege": ["🧴 Duschgel", "🧴 Shampoo", "🧴 Spülung", "🧴 Haarkur", "🧴 Haargel", "🧴 Haarspray", "🧴 Bodylotion", "🧴 Handcreme", "🧴 Gesichtscreme", "🧴 Sonnencreme", "🧴 After-Sun", "🧴 Lippenpflege", "🧼 Handseife", "🧼 Seife", "🪥 Zahnpasta", "🪥 Zahnbürste", "🪥 Zahnseide", "🪥 Mundspülung", "🧴 Deo", "🪒 Rasierer", "🪒 Rasierklingen", "🧴 Rasierschaum", "🧴 Aftershave", "💄 Make-up-Entferner", "🧻 Wattestäbchen", "🧻 Wattepads", "🩲 Tampons", "🩲 Binden", "🩲 Slipeinlagen", "💊 Schmerzmittel", "💊 Paracetamol", "💊 Ibuprofen", "💊 Vitamine", "💊 Magnesium", "💊 Vitamin D", "💊 Halstabletten", "🍬 Hustenbonbons", "💧 Nasenspray", "💧 Augentropfen", "🩹 Pflaster", "🩹 Verband", "🧴 Desinfektionsspray", "🌡️ Fiebermesser", "😷 Masken", "🦟 Mückenschutz", "🧴 Wundsalbe", "👶 Windeln", "👶 Feuchttücher", "👶 Babybrei", "🍼 Babymilch"], "tier": ["🐈 Katzenfutter nass", "🐈 Katzenfutter trocken", "🐈 Katzensnacks", "🐈 Katzenstreu", "🐈 Katzenmilch", "🐕 Hundefutter nass", "🐕 Hundefutter trocken", "🦴 Hundesnacks", "🦴 Kauknochen", "🐕 Robidog-Säckli", "🐕 Hundeshampoo", "🐇 Kaninchenfutter", "🐹 Nagerfutter", "🌾 Heu", "🌾 Einstreu", "🐦 Vogelfutter", "🐦 Meisenknödel", "🐟 Fischfutter", "🐢 Schildkrötenfutter", "🪀 Tierspielzeug", "💊 Zecken- & Flohschutz", "🪮 Tierbürste"], "garten": ["🌱 Blumenerde", "🌱 Gemüseerde", "🌱 Kräutererde", "🌱 Dünger", "🌱 Rasendünger", "🌱 Rasensamen", "🌱 Gemüsesamen", "🌱 Kräutersamen", "🌷 Blumenzwiebeln", "🌸 Topfpflanzen", "🌿 Kräutertöpfe", "🪴 Blumentöpfe", "🪴 Untersetzer", "🚿 Giesskanne", "🚿 Gartenschlauch", "✂️ Gartenschere", "🧤 Gartenhandschuhe", "🐌 Schneckenkörner", "🔥 Grillkohle", "🔥 Anzündwürfel", "🔥 Gaskartusche", "🪵 Brennholz", "🔨 Nägel", "🔩 Schrauben", "🔩 Dübel", "🔧 Schraubenzieher", "🔨 Hammer", "📏 Massband", "🖌️ Pinsel", "🎨 Farbe", "🧴 Silikon", "🧴 Leim", "🧴 WD-40", "🩹 Klebeband (Gewebe)", "💡 LED-Lampen", "🔌 Verlängerungskabel", "🔌 Mehrfachstecker", "🔋 Akkus", "🔦 Taschenlampe", "🪜 Leiter", "🧽 Schleifpapier", "🪣 Eimer"]};
   var CATITEMS=[];Object.keys(CATALOG).forEach(function(c){CATALOG[c].forEach(function(x){var i=x.indexOf(" ");CATITEMS.push({cat:c,icon:x.slice(0,i),name:x.slice(i+1)});});});
@@ -512,8 +533,9 @@ window.startApp=function(backend){
   function addItem(x){
     x=String(x||"").trim();if(!x)return;
     var key=weekKey(ui.offset),lx=x.toLowerCase(),ex=week(key).extra||[],hit=shopAll(key).filter(function(i){return i.name.toLowerCase()===lx;})[0];
-    if(hit){if(hit.on){var pc={checked:{}};pc.checked[hit.k]=null;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
-    else weekPatch(key,{extra:ex.concat([x])});
+    var bb={e:me,t:Date.now()};
+    if(hit){if(hit.on){var pc={checked:{},by:{}};pc.checked[hit.k]=null;if(hit.idx!=null)pc.by[hit.k]=bb;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
+    else{var pb={extra:ex.concat([x]),by:{}};pb.by["x:"+lx]=bb;weekPatch(key,pb);}
   }
   function catTile(it,onList){return '<button class="tile cat'+(onList?" onlist":"")+'" data-addcat="'+esc(it.name)+'"><span class="te">'+it.icon+'</span><span class="tn">'+esc(it.name)+'</span></button>';}
   function histItems(){var h=(D.hist.main&&D.hist.main.items)||{};return Object.keys(h).map(function(k){var v=h[k];return v&&v.n?{k:k,name:String(v.n),t:+v.t||0}:null;}).filter(Boolean).sort(function(a,b){return b.t-a.t;});}
@@ -633,7 +655,7 @@ window.startApp=function(backend){
   }
   function applyTpl(id){
     var t=D.templates[id],key=weekKey(ui.offset);
-    var go=function(){replaceWeekDays(key,JSON.parse(JSON.stringify(t.days||{})));ui.tab="plan";toast(t.name+" in KW "+kwOf(key)+" übernommen.");};
+    var go=function(){var dd=JSON.parse(JSON.stringify(t.days||{})),bb={e:me,t:Date.now()};Object.keys(dd).forEach(function(d){MEALS.forEach(function(m){if(dd[d]&&dd[d][m[0]])dd[d][m[0]].by=bb;});});replaceWeekDays(key,dd);ui.tab="plan";toast(t.name+" in KW "+kwOf(key)+" übernommen.");};
     var w=D.weeks[key],has=w&&Object.keys(w.days||{}).some(function(d){return w.days[d]&&(w.days[d].mittag||w.days[d].abend);});
     if(has)open({type:"confirm",title:t.name+" anwenden?",text:"Die Gerichte, die schon in dieser Woche stehen, werden ersetzt.",ok:"Ersetzen",run:go});
     else{ui.modal=null;go();render();}
@@ -685,7 +707,7 @@ window.startApp=function(backend){
     var t=e.target,el;
     if(t.classList&&t.classList.contains("overlay")){ui.modal=null;render();return;}
     if(t.closest("select"))return;
-    if((el=t.closest("[data-tab]"))){ui.tab=el.dataset.tab;render();return;}
+    if((el=t.closest("[data-tab]"))){if(el.dataset.tab==="shop"&&ui.tab!=="shop"){var ps=0;try{ps=+localStorage.getItem("wm-seen")||0;localStorage.setItem("wm-seen",String(Date.now()));}catch(x){}ui.prevSeen=ps;}ui.tab=el.dataset.tab;render();return;}
     if((el=t.closest("[data-mode]"))){ui.mode=el.dataset.mode;render();return;}
     if((el=t.closest("[data-slot]"))){var p=el.dataset.slot.split("|");open({type:"slot",day:+p[0],meal:p[1],q:""});return;}
     if((el=t.closest("[data-tslot]"))){var q=el.dataset.tslot.split("|");open({type:"slot",tpl:q[0],day:+q[1],meal:q[2],q:""});return;}
@@ -704,7 +726,7 @@ window.startApp=function(backend){
       if(el.classList.contains("onlist")){if(ix>=0){var ne=ex2.slice();ne.splice(ix,1);var pcx={extra:ne,checked:{}};pcx.checked["x:"+ln]=null;weekPatch(wk2,pcx);}else toast("«"+nm+"» gehört zu einem geplanten Gericht.");}
       else{addItem(nm);if(ui.q){ui.q="";}}
       render();return;}
-    if((el=t.closest("[data-readd]"))){var rn=el.dataset.readd,rk=el.dataset.tk;if(rk){var pr={checked:{}};pr.checked[rk]=null;weekPatch(weekKey(ui.offset),pr);}else addItem(rn);el.classList.add("pop-out");return;}
+    if((el=t.closest("[data-readd]"))){var rn=el.dataset.readd,rk=el.dataset.tk;if(rk){var pr={checked:{},by:{}};pr.checked[rk]=null;if(rk.indexOf("x:")===0)pr.by[rk]={e:me,t:Date.now()};weekPatch(weekKey(ui.offset),pr);}else addItem(rn);el.classList.add("pop-out");return;}
     if((el=t.closest("[data-tile]"))){var tk=el.dataset.tile,wk=weekKey(ui.offset),cur=!!(week(wk).checked||{})[tk],pt={checked:{}};pt.checked[tk]=cur?null:true;if(!cur){var tn=el.querySelector(".tn");if(tn)recordBought(tn.textContent);}el.classList.add(cur?"pop-in":"pop-out");setTimeout(function(){weekPatch(wk,pt);},cur?0:180);return;}
     if((el=t.closest("[data-delx]"))){e.preventDefault();var key=weekKey(ui.offset),ex=(week(key).extra||[]).slice();ex.splice(+el.dataset.delx,1);weekPatch(key,{extra:ex});return;}
     if((el=t.closest("[data-a]"))&&actions[el.dataset.a]){actions[el.dataset.a]();}
@@ -748,9 +770,18 @@ window.startApp=function(backend){
     if(!ids.length)return;
     user.profiles(ids).then(function(ps){ids.forEach(function(id){var p=ps&&ps[id];if(p&&p.name)names[id]=p.name.split(" ")[0];});render();},function(){});
   }
+  var bootT=Date.now();
+  function notifyPartner(oldW,newW){
+    var k=weekKey(ui.offset),a=oldW[k]||{},b=newW[k]||{},msgs=[];
+    var ob=a.by||{},nb=b.by||{};
+    Object.keys(nb).forEach(function(x){var v=nb[x];if(v&&v.e&&v.e!==me&&v.t>bootT&&(!ob[x]||ob[x].t!==v.t)){var nm=(b.extra||[]).filter(function(e){return "x:"+e.toLowerCase()===x;})[0];if(nm)msgs.push(nameOf(v.e)+" hat «"+nm+"» auf die Einkaufsliste gesetzt");}});
+    Object.keys(b.days||{}).forEach(function(d){MEALS.forEach(function(m){var nv=b.days[d]&&b.days[d][m[0]],ov=a.days&&a.days[d]&&a.days[d][m[0]];if(nv&&nv.by&&nv.by.e!==me&&nv.by.t>bootT&&(!ov||!ov.by||ov.by.t!==nv.by.t)){var n=label(nv);if(n)msgs.push(nameOf(nv.by.e)+" hat «"+n+"» für "+DAYS[d].slice(0,2)+" "+m[1]+" eingeplant");}});});
+    if(msgs.length)toast(msgs.length>2?msgs[0]+" (+"+(msgs.length-1)+" weitere)":msgs.join(" · "));
+  }
   function sub(coll,key){
     db.collection(coll).onSnapshot(function(snap){
       var o={};snap.docs.forEach(function(d){var v=d.data();if(!v)return;var c=JSON.parse(JSON.stringify(v));c.id=d.id;o[d.id]=c;});
+      if(key==="weeks"&&loaded.weeks)notifyPartner(D.weeks,o);
       D[key]=o;loaded[key]=true;
       if(!snap.metadata.fromCache){clearTimeout(slowTimer);if(conn!=="live"){conn="live";}}
       if(key==="sugg")resolveNames();
@@ -758,6 +789,7 @@ window.startApp=function(backend){
     },function(err){loaded[key]=true;if(err&&err.code==="revoked"){readOnly=true;}conn="slow";render();});
   }
   var slowTimer;
+  (backend.members||[]).forEach(function(m){if(m&&m.email&&m.name)names[String(m.email).toLowerCase()]=m.name;});
   render();
   var use=function(n){return Promise.resolve(n==="db"?backend.db:n==="user"?backend.user:null);};
   Promise.all([use("db"),use("user")]).then(function(r){
@@ -856,7 +888,7 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
     var names={};members.forEach(function(m){names[m.email.toLowerCase()]=m.name;});
     var user={id:function(){return Promise.resolve(email);},can:function(){return Promise.resolve(true);},
       profiles:function(ids){var o={};ids.forEach(function(id){o[id]={name:names[String(id).toLowerCase()]||""};});return Promise.resolve(o);}};
-    return {db:db,user:user,email:email,logout:function(){sb.auth.signOut().then(function(){location.reload();});},setPassword:function(pw){return sb.auth.updateUser({password:pw}).then(function(r){if(r.error)throw r.error;});}};
+    return {db:db,user:user,email:email,members:members,logout:function(){sb.auth.signOut().then(function(){location.reload();});},setPassword:function(pw){return sb.auth.updateUser({password:pw}).then(function(r){if(r.error)throw r.error;});}};
   }
 
   var started=false;

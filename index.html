@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2226">
+<meta name="app-version" content="20261124-2236">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -360,6 +360,16 @@ img.logo{display:block;object-fit:cover;padding:0}
 .impt input{border:0;background:transparent;font-weight:600;font-size:15px;padding:2px 0;outline:none;border-bottom:1px dashed transparent}
 .impt input:focus{border-bottom-color:var(--accent)}
 .impt small{color:var(--muted);font-size:11.5px}
+
+/* ---------- Gerichte: Eigene / Fooby ---------- */
+.recseg{margin:0 0 14px}
+.recseg .cnt{font-weight:600;color:var(--muted);font-size:12px;margin-left:2px}
+.fdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f97316;margin-right:6px;vertical-align:1px}
+.pill.primaryf{background:#f97316;border-color:#f97316;color:#fff}
+.recipe{position:relative}
+.srcbadge{position:absolute;top:10px;left:10px;background:#f97316;color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px}
+.pickh{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:10px 12px 4px}
+.fsm{margin-left:auto;font-size:10.5px;font-weight:700;color:#c2410c;background:#fff1e6;padding:2px 7px;border-radius:999px}
 </style>
 </head>
 <body>
@@ -530,7 +540,7 @@ window.startApp=function(backend){
     h+='<button class="hcard" data-tab="shop"><div class="hc-head"><span class="hc-ic c3">'+ICON.shop+'</span><span class="hc-go">›</span></div><div class="hc-t">Einkauf</div><div class="hc-s">'+(todo.length?todo.length+' Artikel':'Alles da 🎉')+'</div>'+(todo.length?'<div class="mini">'+todo.slice(0,5).map(function(i){return '<span>'+i.cl.icon+'</span>';}).join("")+'</div>':'')+'</button>';
     h+='<button class="hcard" data-tab="templates"><div class="hc-head"><span class="hc-ic c4">'+ICON.templates+'</span><span class="hc-go">›</span></div><div class="hc-t">Vorlagen</div><div class="hc-s">'+tplsSorted().length+' Wochenmenüs</div></button>';
     var rs=recipesSorted();
-    h+='<button class="hcard" data-tab="recipes"><div class="hc-head"><span class="hc-ic c5">'+ICON.recipes+'</span><span class="hc-go">›</span></div><div class="hc-t">Gerichte</div><div class="hc-s">'+rs.length+' Rezepte</div><div class="mini">'+rs.slice(0,5).map(function(r){return '<span>'+dishEmoji(r.name)+'</span>';}).join("")+'</div></button>';
+    h+='<button class="hcard" data-tab="recipes"><div class="hc-head"><span class="hc-ic c5">'+ICON.recipes+'</span><span class="hc-go">›</span></div><div class="hc-t">Gerichte</div><div class="hc-s">'+rs.filter(function(r){return srcOf(r)==="own";}).length+' eigene · '+rs.filter(function(r){return srcOf(r)==="fooby";}).length+' Fooby</div><div class="mini">'+rs.slice(0,5).map(function(r){return '<span>'+dishEmoji(r.name)+'</span>';}).join("")+'</div></button>';
     return h+'</div></div>';
   }
   function renderPlan(mon){
@@ -697,16 +707,29 @@ window.startApp=function(backend){
     var c=cleanIng(line);return c?[c]:[];
   }
   function firstUrl(t){var m=String(t||"").match(/https?:\/\/[^\s<>"']+/i);return m?m[0].replace(/[).,;]+$/,""):"";}
+  function srcOf(r){var u=String(r&&r.url||"");if(/^https:\/\/([a-z0-9-]+\.)*fooby\.ch\//i.test(u))return "fooby";if(/^https:\/\//.test(u))return "web";return "own";}
+  var SRCNAME={own:"Eigene",fooby:"Fooby",web:"Andere Seiten"};
+  function recipeCard(r){
+    var sc=srcOf(r);
+    return '<div class="recipe">'+vis(r.id,r.name,"rph")+(sc==="fooby"?'<span class="srcbadge">FOOBY</span>':'')+'<h3>'+esc(r.name)+'</h3><div>'+(r.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("")+(r.servings?'<span class="tag">'+esc(r.servings)+(/^\d+$/.test(r.servings)?" Pers.":"")+'</span>':'')+'</div><div class="ing">'+esc((r.ingredients||[]).join(", "))+'</div>'+(sc!=="own"?'<a class="srclink" href="'+esc(r.url)+'" target="_blank" rel="noopener">Rezept öffnen ↗</a>':'')+'<div class="acts"><button class="btn sm" data-edit="'+r.id+'">Bearbeiten</button><button class="btn ghost sm" data-del="'+r.id+'">Löschen</button></div></div>';
+  }
   function renderRecipes(){
-    var list=recipesSorted();
-    var h='<div class="chips"><button class="pill primary" data-a="newrecipe">+ Neues Gericht</button><button class="pill fooby" data-a="importrecipe">↓ Von Fooby importieren</button></div><div class="recipes">';
-    list.forEach(function(r){var ph=photoOf(r.id);h+='<div class="recipe">'+vis(r.id,r.name,"rph")+'<h3>'+esc(r.name)+'</h3><div>'+(r.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("")+'</div><div class="ing">'+esc((r.ingredients||[]).join(", "))+'</div>'+(r.url&&/^https:\/\//.test(r.url)?'<a class="srclink" href="'+esc(r.url)+'" target="_blank" rel="noopener">Rezept öffnen ↗</a>':'')+'<div class="acts"><button class="btn sm" data-edit="'+r.id+'">Bearbeiten</button><button class="btn ghost sm" data-del="'+r.id+'">Löschen</button></div></div>';});
-    if(!list.length)h+='<div class="empty-state">Noch keine Gerichte.</div>';
-    return h+'</div>';
+    var list=recipesSorted(),groups={own:[],fooby:[],web:[]};
+    list.forEach(function(r){groups[srcOf(r)].push(r);});
+    var sel=ui.recSrc||"own";if(!groups[sel].length&&sel==="web")sel="own";
+    var h='<div class="seg recseg">'+["own","fooby","web"].filter(function(k){return k!=="web"||groups.web.length;}).map(function(k){return '<button class="'+(k===sel?"on":"")+'" data-recsrc="'+k+'">'+(k==="fooby"?'<span class="fdot"></span>':'')+SRCNAME[k]+' <span class="cnt">'+groups[k].length+'</span></button>';}).join("")+'</div>';
+    h+='<div class="chips">'+(sel==="own"?'<button class="pill primary" data-a="newrecipe">+ Neues Gericht</button>':'')+'<button class="pill fooby'+(sel!=="own"?" primaryf":"")+'" data-a="importrecipe">↓ Von Fooby importieren</button></div>';
+    var g=groups[sel];
+    if(!g.length)h+='<div class="card empty-state">'+(sel==="fooby"?'<div style="font-size:40px">🧡</div>Noch keine Rezepte von Fooby. Tippe auf «Von Fooby importieren» und füge einen Link ein.':'Noch keine eigenen Gerichte.')+'</div>';
+    else h+='<div class="recipes">'+g.map(recipeCard).join("")+'</div>';
+    return h;
   }
   function pickList(selId,q){
     q=(q||"").toLowerCase();
-    return '<div class="picklist">'+recipesSorted().filter(function(r){return !q||r.name.toLowerCase().indexOf(q)>=0;}).map(function(r){return '<button class="pick'+(selId===r.id?" sel":"")+'" data-pick="'+r.id+'">'+vis(r.id,r.name,"pvis")+'<span>'+esc(r.name)+'</span></button>';}).join("")+'</div>';
+    var L=recipesSorted().filter(function(r){return !q||r.name.toLowerCase().indexOf(q)>=0;}),G={own:[],fooby:[],web:[]};L.forEach(function(r){G[srcOf(r)].push(r);});
+    var multi=(G.fooby.length||G.web.length)&&G.own.length;
+    var one=function(r){return '<button class="pick'+(selId===r.id?" sel":"")+'" data-pick="'+r.id+'">'+vis(r.id,r.name,"pvis")+'<span>'+esc(r.name)+'</span>'+(srcOf(r)==="fooby"?'<span class="fsm">Fooby</span>':'')+'</button>';};
+    return '<div class="picklist">'+["own","fooby","web"].map(function(k){if(!G[k].length)return "";return (multi?'<div class="pickh">'+(k==="own"?"Eigene Gerichte":k==="fooby"?"Von Fooby":"Andere Seiten")+'</div>':'')+G[k].map(one).join("");}).join("")+'</div>';
   }
   function renderModal(){
     var m=ui.modal,h='<div class="overlay"><div class="modal" role="dialog">';
@@ -803,7 +826,7 @@ window.startApp=function(backend){
       var seen={},ings=[];m.items.forEach(function(it){var k=it.name.toLowerCase();if(it.on&&it.name&&!seen[k]){seen[k]=1;ings.push(it.name);}});
       var id=db.collection("recipes").doc().id;
       var data={name:m.name,ingredients:ings,tags:[],url:R.url||"",servings:R.servings||"",lines:R.ingredients||[],source:"import"};
-      write("recipes/"+id,function(r){return r.set(data);});ui.modal=null;ui.tab="recipes";render();toast("«"+m.name+"» gespeichert ✓");
+      write("recipes/"+id,function(r){return r.set(data);});ui.modal=null;ui.tab="recipes";ui.recSrc=srcOf(data);render();toast("«"+m.name+"» gespeichert ✓");
     },
     togglegot:function(){ui.showGot=!ui.showGot;render();},
     clearextra:function(){var key=weekKey(ui.offset),w=week(key),chk=w.checked||{},keep=[],pc={};(w.extra||[]).forEach(function(e){var k="x:"+e.toLowerCase();if(chk[k])pc[k]=null;else keep.push(e);});weekPatch(key,{extra:keep,checked:pc});},
@@ -863,6 +886,7 @@ window.startApp=function(backend){
     if((el=t.closest("[data-edit]"))){open({type:"recipe",id:el.dataset.edit});return;}
     if((el=t.closest("[data-del]"))){var rid=el.dataset.del,r=recipe(rid);open({type:"confirm",title:"«"+r.name+"» löschen?",text:"Das Gericht verschwindet aus der Liste und aus allen Plänen.",ok:"Löschen",run:function(){write("recipes/"+rid,function(x){return x.delete();});if(D.images[rid])savePhoto(rid,null);}});return;}
     if((el=t.closest("[data-deltpl]"))){var tid=el.dataset.deltpl;open({type:"confirm",title:"«"+D.templates[tid].name+"» löschen?",text:"Bereits geplante Wochen bleiben unverändert.",ok:"Löschen",run:function(){write("templates/"+tid,function(x){return x.delete();});}});return;}
+    if((el=t.closest("[data-recsrc]"))){ui.recSrc=el.dataset.recsrc;render();return;}
     if((el=t.closest("[data-catsel]"))){ui.catSel=el.dataset.catsel;render();var ch=document.querySelector('[data-catsel="'+ui.catSel+'"]'),bar=ch&&ch.parentNode;if(bar)bar.scrollLeft=ch.offsetLeft-bar.offsetLeft-12;return;}
     if((el=t.closest("[data-addcat]"))){var nm=el.dataset.addcat,wk2=weekKey(ui.offset),w2=week(wk2),ln=nm.toLowerCase(),ex2=(w2.extra||[]),ix=-1;ex2.forEach(function(e,i){if(e.toLowerCase()===ln)ix=i;});
       if(el.classList.contains("onlist")){if(ix>=0){var ne=ex2.slice();ne.splice(ix,1);var pcx={extra:ne,checked:{}};pcx.checked["x:"+ln]=null;weekPatch(wk2,pcx);}else toast("«"+nm+"» gehört zu einem geplanten Gericht.");}

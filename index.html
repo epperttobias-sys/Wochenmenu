@@ -222,6 +222,11 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.4px;margin:0;line-height:1.1}
 img.logo{display:block;object-fit:cover;padding:0}
 .codein{font-size:26px;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums}
 .login .btn.primary{padding:12px}
+.codein2{font-size:20px;text-align:center;padding:14px!important}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.whob{border:1.5px solid var(--line2);background:#fff;border-radius:16px;padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.whob:hover{border-color:var(--accent);background:var(--accent-soft)}
+.av{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:22px}
 </style>
 </head>
 <body>
@@ -625,33 +630,34 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
   }
   var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-  var lastEmail="";try{lastEmail=localStorage.getItem("wm-email")||"";}catch(e){}
-  function remember(em){lastEmail=em;try{localStorage.setItem("wm-email",em);}catch(e){}}
-  function trMsg(m){m=String(m||"");
-    if(/rate limit/i.test(m))return "Zu viele Mails in kurzer Zeit. Bitte etwa eine Stunde warten und es dann nochmals versuchen.";
-    if(/expired|invalid/i.test(m)&&/otp|token/i.test(m))return "Der Code ist falsch oder abgelaufen. Fordere einen neuen an.";
-    return "Das hat nicht geklappt: "+esc(m);}
-  function showLogin(msg,mode){
-    mode=mode||"code";
-    var tabs=mode==="code"?'<p class="muted">Gib deine E-Mail-Adresse ein. Du bekommst einen Code per Mail. Das brauchst du nur einmal pro Gerät – danach bleibst du angemeldet.</p>':'';
+  function showJoin(msg,step,members,code){
+    step=step||"code";
     var body;
-    if(mode==="pw")body='<form id="pwf"><div class="field"><label>E-Mail</label><input type="email" name="email" required autocomplete="username" value="'+esc(lastEmail)+'" placeholder="name@beispiel.ch"></div><div class="field"><label>Passwort</label><input type="password" name="pw" required autocomplete="current-password"></div><button class="btn primary" style="width:100%">Anmelden</button></form><p class="muted small" style="margin-top:12px">Noch kein Passwort? Wähle «Mit Code per E-Mail». Nach der Anmeldung kannst du unten in der App ein Passwort festlegen.</p>';
-    else if(mode==="code")body='<form id="codef"><div class="field"><label>E-Mail</label><input type="email" name="email" required autocomplete="email" value="'+esc(lastEmail)+'" placeholder="name@beispiel.ch"></div><button class="btn primary" style="width:100%">Code senden</button></form>';
-    else body='<p class="muted">Wir haben dir eine E-Mail an <b>'+esc(lastEmail)+'</b> geschickt. Gib den Code daraus hier ein:</p><form id="verf"><div class="field"><input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456" class="codein" required></div><button class="btn primary" style="width:100%">Anmelden</button></form><p class="muted small" style="margin-top:12px">Keine Mail? Schau im Spam-Ordner nach. <a href="#" data-lm="code">Neuen Code anfordern</a></p>';
-    shell('<h2>Anmelden</h2>'+tabs+(msg?'<p class="note" style="margin-top:12px">'+msg+'</p>':'')+body);
-    app.querySelectorAll("[data-lm]").forEach(function(x){x.addEventListener("click",function(e){e.preventDefault();showLogin("",x.dataset.lm);});});
-    function busy(f,t){var b=f.querySelector("button.primary");b.disabled=true;b.textContent=t;}
-    var pwf=document.getElementById("pwf");
-    if(pwf)pwf.addEventListener("submit",function(e){e.preventDefault();var em=pwf.elements.email.value.trim();remember(em);busy(pwf,"Melde an …");
-      sb.auth.signInWithPassword({email:em,password:pwf.elements.pw.value}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"pw");});});
-    var cf=document.getElementById("codef");
-    if(cf)cf.addEventListener("submit",function(e){e.preventDefault();var em=cf.elements.email.value.trim();remember(em);busy(cf,"Sende …");
-      sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"code");else showLogin("","verify");});});
-    var vf=document.getElementById("verf");
-    if(vf)vf.addEventListener("submit",function(e){e.preventDefault();var code=vf.elements.code.value.replace(/\D/g,"");busy(vf,"Prüfe …");
-      sb.auth.verifyOtp({email:lastEmail,token:code,type:"email"}).then(function(r){if(r.error)showLogin(trMsg(r.error.message),"verify");});});
-    var af=app.querySelector("input[autofocus],.codein")||app.querySelector('input[name="'+(lastEmail&&mode==="pw"?"pw":"email")+'"]');if(af&&window.matchMedia&&window.matchMedia("(pointer:fine)").matches)af.focus();
+    if(step==="code")body='<p class="muted">Gib euren <b>Familien-Code</b> ein. Das brauchst du nur einmal pro Gerät – danach öffnet sich die App direkt.</p><form id="joinf"><div class="field"><input name="code" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Familien-Code" class="codein2"></div><button class="btn primary" style="width:100%">Weiter</button></form>';
+    else body='<p class="muted">Wer bist du?</p><div class="who">'+members.map(function(m){return '<button class="whob" data-em="'+esc(m.email)+'"><span class="av">'+esc((m.name||"?").charAt(0))+'</span>'+esc(m.name)+'</button>';}).join("")+'</div>';
+    shell('<h2>Willkommen 👋</h2>'+(msg?'<p class="note" style="margin-top:12px">'+msg+'</p>':'')+body);
+    var f=document.getElementById("joinf");
+    if(f){var inp=f.elements.code;if(window.matchMedia&&window.matchMedia("(pointer:fine)").matches)inp.focus();
+      f.addEventListener("submit",function(e){e.preventDefault();var c=inp.value.trim();if(!c)return;var btn=f.querySelector("button");btn.disabled=true;btn.textContent="Prüfe …";
+        ensureSession().then(function(){return sb.rpc("check_code",{p_code:c});}).then(function(r){
+          if(r.error)throw r.error;
+          if(!r.data||!r.data.length)showJoin("Dieser Code stimmt nicht. Bitte nochmals versuchen.","code");
+          else showJoin("","who",r.data,c);
+        }).catch(function(err){showJoin(errMsg(err),"code");});});}
+    app.querySelectorAll("[data-em]").forEach(function(btn){btn.addEventListener("click",function(){
+      app.querySelectorAll("[data-em]").forEach(function(x){x.disabled=true;});
+      sb.rpc("join_family",{p_code:code,p_email:btn.dataset.em}).then(function(r){
+        if(r.error||!r.data)throw r.error||{message:"join"};
+        started=false;sb.auth.getSession().then(function(s){boot(s.data&&s.data.session);});
+      }).catch(function(err){showJoin(errMsg(err),"code");});});});
   }
+  function errMsg(e){var m=String(e&&e.message||e||"");
+    if(/zu viele/i.test(m))return "Zu viele Versuche. Bitte in einer Stunde nochmals probieren.";
+    if(/anonymous sign-ins are disabled|anonymous/i.test(m))return "Die Anmeldung ohne E-Mail ist in Supabase noch nicht eingeschaltet (Authentication → Sign In / Providers → «Allow anonymous sign-ins»).";
+    if(/rate limit/i.test(m))return "Zu viele Anfragen in kurzer Zeit. Bitte etwas warten.";
+    if(/function .* does not exist|could not find the function/i.test(m))return "Das Einrichtungs-Skript (familien-code.sql) wurde in Supabase noch nicht ausgeführt.";
+    return "Das hat nicht geklappt: "+esc(m);}
+  function ensureSession(){return sb.auth.getSession().then(function(r){if(r.data&&r.data.session)return;return sb.auth.signInAnonymously().then(function(x){if(x.error)throw x.error;});});}
 
   function clone(o){return o==null?o:JSON.parse(JSON.stringify(o));}
   function deepMerge(a,b){
@@ -692,22 +698,20 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
   var started=false;
   function boot(session){
     if(started)return;
-    if(!session){showLogin();return;}
+    if(!session){showJoin();return;}
     started=true;
-    var email=(session.user&&session.user.email||"").toLowerCase();
     shell('<p class="muted">Lade euren Plan …</p>');
-    sb.from("members").select("email,name").then(function(r){
-      if(r.error||!r.data||!r.data.some(function(m){return m.email.toLowerCase()===email;})){
-        shell('<h2>Kein Zugriff</h2><p class="muted">Die Adresse <b>'+esc(email)+'</b> ist nicht als Mitglied eingetragen. Trage sie in Supabase in der Tabelle <code>members</code> ein.</p><button class="btn" id="lo">Abmelden</button>');
-        document.getElementById("lo").onclick=function(){sb.auth.signOut().then(function(){location.reload();});};
-        return;
-      }
-      if(location.hash.indexOf("access_token")>=0)history.replaceState(null,"",location.pathname);
-      window.startApp(makeBackend(email,r.data));
+    sb.rpc("whoami").then(function(r){
+      var me=r.data&&r.data[0];
+      if(r.error||!me){started=false;showJoin(r.error?errMsg(r.error):"");return null;}
+      return sb.from("members").select("email,name").then(function(m){
+        if(location.hash.indexOf("access_token")>=0)history.replaceState(null,"",location.pathname);
+        window.startApp(makeBackend(me.email.toLowerCase(),m.data||[me]));
+      });
     });
   }
   sb.auth.getSession().then(function(r){boot(r.data&&r.data.session);});
-  sb.auth.onAuthStateChange(function(ev,session){if(ev==="SIGNED_IN"&&session)boot(session);});
+  
 })();
 
 </script>

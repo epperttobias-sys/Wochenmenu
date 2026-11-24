@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2136">
+<meta name="app-version" content="20261124-2139">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -213,7 +213,7 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.4px;margin:0;line-height:1.1}
 .tile{border:0;border-radius:16px;background:var(--accent);color:#fff;aspect-ratio:1/1;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;box-shadow:0 2px 6px rgba(26,138,90,.25);transition:transform .12s,opacity .18s}
 .tile:active{transform:scale(.94)}
 .tile .te{font-size:34px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
-.tile .tn{font-size:12.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.tile .tn{font-size:12.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
 .tile.got{background:var(--card);color:var(--muted);box-shadow:var(--shadow)}
 .tile.got .te{filter:grayscale(1);opacity:.55}
 .tile.pop-out{transform:scale(.85);opacity:0}
@@ -275,6 +275,16 @@ img.logo{display:block;object-fit:cover;padding:0}
 }
 .updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));z-index:50;border:0;background:var(--accent);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;box-shadow:var(--shadow-lg);white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
 @media (min-width:681px){.updbar{bottom:24px}}
+
+/* ---------- Produktkatalog ---------- */
+.tile.cat{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.tile.cat .te{filter:none}
+.tile.cat:hover{background:#fbfcfd}
+.tile.cat.onlist{background:var(--accent-soft);color:var(--accent-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+.tile.cat.onlist .tn::before{content:"✓ ";font-weight:700}
+.tile.cat.own{background:var(--bg);box-shadow:inset 0 0 0 1.5px dashed var(--line2);border:1.5px dashed #c9ced6}
+.sugtiles{margin:-4px 0 16px;padding:10px;background:#fff;border-radius:16px;box-shadow:var(--shadow)}
+.catchips{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -474,6 +484,7 @@ window.startApp=function(backend){
   var FIRST=[["fleischkäse","fleisch","🥩"],["kokosmilch","vorrat","🥥"],["saft","getraenke","🧃"],["paniermehl","vorrat","🌾"],["currypaste","vorrat","🥫"],["pizzateig","brot","🫓"]];
   function classify(name){
     var n=" "+String(name).toLowerCase()+" ";
+    var ci=CATICON[String(name).toLowerCase().trim()];if(ci)return {cat:ci.cat,icon:ci.icon};
     for(var f=0;f<FIRST.length;f++)if(n.indexOf(FIRST[f][0])>=0)return {cat:FIRST[f][1],icon:FIRST[f][2]};
     for(var c=0;c<CATS.length;c++)for(var j=2;j<CATS[c].length;j++){var row=CATS[c][j];for(var x=1;x<row.length;x++){var kw=row[x];if(kw==="ei"?/[\s\-\/]eier?[\s\-\/]/.test(n):n.indexOf(kw)>=0)return {cat:CATS[c][0],icon:row[0]};}}
     return {cat:"andere",icon:"🛒"};
@@ -489,22 +500,53 @@ window.startApp=function(backend){
   function tile(it){
     return '<button class="tile'+(it.on?" got":"")+'" data-tile="'+esc(it.k)+'" title="'+esc(it.sub||it.name)+'"><span class="te">'+it.cl.icon+'</span><span class="tn">'+esc(it.name)+'</span>'+(it.idx!=null&&!it.on?'':'')+'</button>';
   }
+  var CATALOG={
+    gemuese:["🍎 Äpfel","🍐 Birnen","🍌 Bananen","🍊 Orangen","🍊 Mandarinen","🍋 Zitronen","🍋 Limetten","🍇 Trauben","🍓 Erdbeeren","🫐 Heidelbeeren","🍒 Kirschen","🍑 Pfirsiche","🥝 Kiwi","🍍 Ananas","🥭 Mango","🍉 Melone","🥑 Avocado","🍅 Tomaten","🍅 Cherrytomaten","🥒 Gurke","🥕 Karotten","🧅 Zwiebeln","🧄 Knoblauch","🥔 Kartoffeln","🍠 Süsskartoffeln","🥬 Blattsalat","🥬 Nüsslisalat","🥬 Rucola","🥬 Spinat","🥬 Lauch","🥦 Broccoli","🥦 Blumenkohl","🍆 Aubergine","🥒 Zucchetti","🫑 Peperoni","🌶️ Chili","🍄 Champignons","🌽 Mais","🫛 Erbsen","🫚 Ingwer","🌿 Basilikum","🌿 Petersilie","🌿 Schnittlauch","🌿 Koriander","🥬 Sellerie","🥬 Fenchel","🥬 Rotkohl","🎃 Kürbis"],
+    milch:["🥛 Milch","🥛 Rahm","🥛 Halbrahm","🥛 Joghurt nature","🥛 Fruchtjoghurt","🥛 Quark","🥛 Crème fraîche","🥛 Hafermilch","🧈 Butter","🧈 Margarine","🥚 Eier","🧀 Gruyère","🧀 Emmentaler","🧀 Appenzeller","🧀 Mozzarella","🧀 Parmesan","🧀 Feta","🧀 Reibkäse","🧀 Raclettekäse","🧀 Fondue-Mischung","🧀 Frischkäse","🧀 Hüttenkäse","🧀 Mascarpone","🧀 Ricotta"],
+    fleisch:["🥩 Hackfleisch","🥩 Rindsplätzli","🥩 Schweinsplätzli","🥩 Schweinsfilet","🥩 Kalbsplätzli","🥩 Geschnetzeltes","🍗 Pouletbrust","🍗 Pouletschenkel","🥓 Speck","🥓 Rohschinken","🥓 Schinken","🌭 Cervelat","🌭 Bratwurst","🌭 Wienerli","🍖 Fleischkäse","🥓 Salami","🐟 Lachsfilet","🐟 Rauchlachs","🐟 Fischfilet","🍤 Crevetten","🐟 Thon (Dose)"],
+    brot:["🍞 Brot","🍞 Ruchbrot","🍞 Vollkornbrot","🍞 Toastbrot","🥖 Baguette","🥐 Gipfeli","🥨 Brezel","🍞 Zopf","🫓 Pizzateig","🫓 Kuchenteig","🫓 Blätterteig","🫓 Tortillas","🍪 Zwieback"],
+    vorrat:["🍝 Spaghetti","🍝 Penne","🍝 Hörnli","🍝 Fusilli","🍝 Lasagneblätter","🍝 Orzo","🍝 Gnocchi","🍚 Reis","🍚 Risottoreis","🌾 Quinoa","🌾 Couscous","🌾 Polenta","🌾 Mehl","🌾 Paniermehl","🥣 Haferflocken","🥣 Müesli","🥣 Cornflakes","🍬 Zucker","🧂 Salz","🧂 Pfeffer","🧂 Paprikapulver","🧂 Curry","🧂 Oregano","🥫 Bouillon","🥫 Pelati","🥫 Tomatenpüree","🥫 Kokosmilch","🥫 Currypaste","🫘 Kichererbsen","🫘 Kidneybohnen","🫘 Linsen","🌽 Mais (Dose)","🫒 Olivenöl","🫒 Rapsöl","🍶 Essig","🍶 Balsamico","🍶 Sojasauce","🍯 Honig","🍓 Konfitüre","🥜 Erdnussbutter","🍫 Schokolade","🍫 Nutella","🍫 Kakaopulver","🥜 Nüsse","🥜 Mandeln","🍪 Guetzli","🍿 Chips","🥫 Senf","🥫 Ketchup","🥫 Mayonnaise","🥫 Thomy","🧁 Backpulver","🧁 Hefe","🍮 Vanillezucker"],
+    getraenke:["💧 Mineralwasser","💧 Wasser ohne Kohlensäure","🧃 Orangensaft","🧃 Apfelsaft","🥤 Rivella","🥤 Cola","🥤 Eistee","☕ Kaffee","☕ Kaffeekapseln","🍵 Tee","🍷 Rotwein","🍷 Weisswein","🥂 Prosecco","🍺 Bier"],
+    tk:["🍟 Pommes frites","🍕 Tiefkühlpizza","🥦 TK-Gemüse","🫛 TK-Erbsen","🥬 TK-Spinat","🐟 Fischstäbli","🍦 Glace","🧊 Eiswürfel"],
+    haushalt:["🧻 WC-Papier","🧻 Haushaltpapier","🧻 Taschentücher","🧽 Spülmittel","🧽 Schwämme","🧼 Waschmittel","🧼 Weichspüler","🧼 Handseife","🧴 Duschgel","🧴 Shampoo","🪥 Zahnpasta","🪥 Zahnbürste","🧴 Deo","🗑️ Abfallsäcke","🫧 Geschirrspültabs","🧴 Putzmittel","🔋 Batterien","🕯️ Kerzen","🍪 Alufolie","🍪 Frischhaltefolie","🍪 Backpapier"]
+  };
+  var CATITEMS=[];Object.keys(CATALOG).forEach(function(c){CATALOG[c].forEach(function(x){var i=x.indexOf(" ");CATITEMS.push({cat:c,icon:x.slice(0,i),name:x.slice(i+1)});});});
+  var CATICON={};CATITEMS.forEach(function(it){CATICON[it.name.toLowerCase()]=it;});
+  function addItem(x){
+    x=String(x||"").trim();if(!x)return;
+    var key=weekKey(ui.offset),lx=x.toLowerCase(),ex=week(key).extra||[],hit=shopAll(key).filter(function(i){return i.name.toLowerCase()===lx;})[0];
+    if(hit){if(hit.on){var pc={checked:{}};pc.checked[hit.k]=null;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
+    else weekPatch(key,{extra:ex.concat([x])});
+  }
+  function catTile(it,onList){return '<button class="tile cat'+(onList?" onlist":"")+'" data-addcat="'+esc(it.name)+'"><span class="te">'+it.icon+'</span><span class="tn">'+esc(it.name)+'</span></button>';}
   function renderShop(){
     var key=weekKey(ui.offset),all=shopAll(key);
     var todo=all.filter(function(i){return !i.on;}),got=all.filter(function(i){return i.on;});
-    var h='<form data-form="extra" class="quickadd"><span class="qa-ic">＋</span><input name="x" placeholder="Was brauchst du noch? z. B. Milch" autocomplete="off"><button class="btn primary">Hinzufügen</button></form>';
-    if(!all.length)return h+'<div class="card empty-state"><div style="font-size:40px">🧺</div>Noch nichts auf der Liste. Die Zutaten der geplanten Gerichte erscheinen automatisch hier.</div>';
-    h+='<div class="shop-head"><div><b>'+todo.length+'</b> <span class="muted">'+(todo.length===1?"Artikel":"Artikel")+' zu kaufen</span></div><div class="chips" style="margin:0"><button class="pill" data-a="copyshop">Liste kopieren</button></div></div>';
-    if(!todo.length)h+='<div class="card empty-state"><div style="font-size:40px">🎉</div>Alles eingekauft!</div>';
-    CATORDER.forEach(function(c){
-      var list=todo.filter(function(i){return i.cl.cat===c;});if(!list.length)return;
-      list.sort(function(a,b){return a.name.localeCompare(b.name,"de");});
-      h+='<h3 class="gh">'+esc(CATNAME[c])+'</h3><div class="tiles">'+list.map(tile).join("")+'</div>';
-    });
-    if(got.length){
-      h+='<div class="got-head"><h3 class="gh" style="margin:0">Zuletzt gekauft</h3><button class="pill" data-a="togglegot">'+(ui.showGot?"Ausblenden":"Anzeigen ("+got.length+")")+'</button></div>';
-      if(ui.showGot)h+='<div class="tiles">'+got.sort(function(a,b){return a.name.localeCompare(b.name,"de");}).map(tile).join("")+'</div><div class="chips" style="margin-top:12px"><button class="pill" data-a="uncheck">Alle wieder auf die Liste</button>'+(got.some(function(i){return i.idx!=null;})?'<button class="pill" data-a="clearextra">Eigene gekaufte Artikel entfernen</button>':'')+'</div>';
+    var onl={};todo.forEach(function(i){onl[i.name.toLowerCase()]=1;});
+    var q=(ui.q||"").trim().toLowerCase();
+    var h='<form data-form="extra" class="quickadd"><span class="qa-ic">＋</span><input name="x" value="'+esc(ui.q||"")+'" placeholder="Was brauchst du? z. B. Milch" autocomplete="off" autocorrect="off" enterkeyhint="done"><button class="btn primary">Hinzufügen</button></form>';
+    if(q){
+      var m=CATITEMS.filter(function(it){return it.name.toLowerCase().indexOf(q)>=0;}).sort(function(a,b){var A=a.name.toLowerCase().indexOf(q)===0?0:1,B=b.name.toLowerCase().indexOf(q)===0?0:1;return A-B||a.name.localeCompare(b.name,"de");}).slice(0,15);
+      var exact=CATITEMS.some(function(it){return it.name.toLowerCase()===q;});
+      h+='<div class="tiles sugtiles">'+m.map(function(it){return catTile(it,onl[it.name.toLowerCase()]);}).join("")+(exact?'':'<button class="tile cat own" data-addcat="'+esc(ui.q.trim())+'"><span class="te">'+classify(ui.q).icon+'</span><span class="tn">«'+esc(ui.q.trim())+'»</span></button>')+'</div>';
     }
+    if(!all.length)h+='<div class="card empty-state"><div style="font-size:40px">🧺</div>Noch nichts auf der Liste. Plane Gerichte im Wochenplan oder tippe unten auf Produkte.</div>';
+    else{
+      h+='<div class="shop-head"><div><b>'+todo.length+'</b> <span class="muted">Artikel zu kaufen</span></div><div class="chips" style="margin:0"><button class="pill" data-a="copyshop">Liste kopieren</button></div></div>';
+      if(!todo.length)h+='<div class="card empty-state"><div style="font-size:40px">🎉</div>Alles eingekauft!</div>';
+      CATORDER.forEach(function(c){
+        var list=todo.filter(function(i){return i.cl.cat===c;});if(!list.length)return;
+        list.sort(function(a,b){return a.name.localeCompare(b.name,"de");});
+        h+='<h3 class="gh">'+esc(CATNAME[c])+'</h3><div class="tiles">'+list.map(tile).join("")+'</div>';
+      });
+      if(got.length){
+        h+='<div class="got-head"><h3 class="gh" style="margin:0">Zuletzt gekauft</h3><button class="pill" data-a="togglegot">'+(ui.showGot?"Ausblenden":"Anzeigen ("+got.length+")")+'</button></div>';
+        if(ui.showGot)h+='<div class="tiles">'+got.sort(function(a,b){return a.name.localeCompare(b.name,"de");}).map(tile).join("")+'</div><div class="chips" style="margin-top:12px"><button class="pill" data-a="uncheck">Alle wieder auf die Liste</button>'+(got.some(function(i){return i.idx!=null;})?'<button class="pill" data-a="clearextra">Eigene gekaufte Artikel entfernen</button>':'')+'</div>';
+      }
+    }
+    var sel=ui.catSel||"gemuese";
+    h+='<div class="catalog"><h3 class="gh" style="margin-top:28px">Alle Produkte</h3><div class="chips catchips">'+Object.keys(CATALOG).map(function(c){return '<button class="pill'+(c===sel?" primary":"")+'" data-catsel="'+c+'">'+esc(CATNAME[c])+'</button>';}).join("")+'</div>';
+    h+='<div class="tiles">'+CATITEMS.filter(function(it){return it.cat===sel;}).map(function(it){return catTile(it,onl[it.name.toLowerCase()]);}).join("")+'</div></div>';
     return h;
   }
   function renderTemplates(){
@@ -644,6 +686,11 @@ window.startApp=function(backend){
     if((el=t.closest("[data-edit]"))){open({type:"recipe",id:el.dataset.edit});return;}
     if((el=t.closest("[data-del]"))){var rid=el.dataset.del,r=recipe(rid);open({type:"confirm",title:"«"+r.name+"» löschen?",text:"Das Gericht verschwindet aus der Liste und aus allen Plänen.",ok:"Löschen",run:function(){write("recipes/"+rid,function(x){return x.delete();});if(D.images[rid])savePhoto(rid,null);}});return;}
     if((el=t.closest("[data-deltpl]"))){var tid=el.dataset.deltpl;open({type:"confirm",title:"«"+D.templates[tid].name+"» löschen?",text:"Bereits geplante Wochen bleiben unverändert.",ok:"Löschen",run:function(){write("templates/"+tid,function(x){return x.delete();});}});return;}
+    if((el=t.closest("[data-catsel]"))){ui.catSel=el.dataset.catsel;render();return;}
+    if((el=t.closest("[data-addcat]"))){var nm=el.dataset.addcat,wk2=weekKey(ui.offset),w2=week(wk2),ln=nm.toLowerCase(),ex2=(w2.extra||[]),ix=-1;ex2.forEach(function(e,i){if(e.toLowerCase()===ln)ix=i;});
+      if(el.classList.contains("onlist")){if(ix>=0){var ne=ex2.slice();ne.splice(ix,1);var pcx={extra:ne,checked:{}};pcx.checked["x:"+ln]=null;weekPatch(wk2,pcx);}else toast("«"+nm+"» gehört zu einem geplanten Gericht.");}
+      else{addItem(nm);if(ui.q){ui.q="";}}
+      render();return;}
     if((el=t.closest("[data-tile]"))){var tk=el.dataset.tile,wk=weekKey(ui.offset),cur=!!(week(wk).checked||{})[tk],pt={checked:{}};pt.checked[tk]=cur?null:true;el.classList.add(cur?"pop-in":"pop-out");setTimeout(function(){weekPatch(wk,pt);},cur?0:180);return;}
     if((el=t.closest("[data-delx]"))){e.preventDefault();var key=weekKey(ui.offset),ex=(week(key).extra||[]).slice();ex.splice(+el.dataset.delx,1);weekPatch(key,{extra:ex});return;}
     if((el=t.closest("[data-a]"))&&actions[el.dataset.a]){actions[el.dataset.a]();}
@@ -660,7 +707,7 @@ window.startApp=function(backend){
     var k=e.target.dataset&&e.target.dataset.chk;if(k===undefined)return;
     var patch={checked:{}};patch.checked[k]=e.target.checked?true:null;weekPatch(weekKey(ui.offset),patch);
   });
-  document.addEventListener("input",function(e){if(e.target.hasAttribute("data-filter")&&ui.modal){ui.modal.q=e.target.value;render();}});
+  document.addEventListener("input",function(e){if(e.target.name==="x"&&e.target.closest(".quickadd")){ui.q=e.target.value;render();return;}if(e.target.hasAttribute("data-filter")&&ui.modal){ui.modal.q=e.target.value;render();}});
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ui.modal){ui.modal=null;render();}});
   document.addEventListener("submit",function(e){
     e.preventDefault();var f=e.target,kind=f.dataset.form;
@@ -678,9 +725,7 @@ window.startApp=function(backend){
       if(p1!==p2){ui.modal.err="Die beiden Passwörter sind nicht gleich.";render();return;}
       var btn=f.querySelector("button.primary");btn.disabled=true;btn.textContent="Speichere …";
       backend.setPassword(p1).then(function(){ui.modal=null;render();toast("Passwort gespeichert ✓");},function(err){ui.modal.err="Das hat nicht geklappt: "+((err&&err.message)||"");render();});
-    } else if(kind==="extra"){var x=f.elements.x.value.trim();if(!x)return;var key=weekKey(ui.offset),lx=x.toLowerCase(),ex=week(key).extra||[],hit=shopAll(key).filter(function(i){return i.name.toLowerCase()===lx;})[0];f.elements.x.value="";
-      if(hit){if(hit.on){var pc={checked:{}};pc.checked[hit.k]=null;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
-      else weekPatch(key,{extra:ex.concat([x])});}
+    } else if(kind==="extra"){var x=f.elements.x.value.trim();if(!x)return;f.elements.x.value="";ui.q="";var sug=CATITEMS.filter(function(it){return it.name.toLowerCase().indexOf(x.toLowerCase())===0;});addItem(sug.length===1?sug[0].name:x);render();}
   });
 
   // ---------- connect ----------

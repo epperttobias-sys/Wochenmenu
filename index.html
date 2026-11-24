@@ -2,221 +2,208 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Menü für die Woche</title>
-<meta name="theme-color" content="#f7f3ec">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wochenmenü</title>
+<meta name="theme-color" content="#f6f7f9">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Menü">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Wochenmenü">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%BD%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#f7f3ec; --card:#fffdf9; --ink:#2b2620; --muted:#8a8073; --line:#e8e0d3;
-  --accent:#c4552d; --accent-soft:#f6e3d9; --green:#5b7f4a; --green-soft:#e5eedc;
-  --radius:14px; --shadow:0 1px 2px rgba(60,40,20,.06),0 4px 14px rgba(60,40,20,.06);
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#15181d; --ink2:#4a515c; --muted:#8a919c; --line:#eceef2; --line2:#e2e5ea;
+  --accent:#1a8a5a; --accent-ink:#0f6b44; --accent-soft:#e8f5ee; --hot:#ff6a3d; --hot-soft:#fff0ea;
+  --r:18px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 2px 8px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 40px rgba(16,24,40,.16);
+  --nav-h:68px;
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif}
-button{font:inherit;cursor:pointer}
-input,textarea{font:inherit;color:inherit}
-.wrap{max-width:1120px;margin:0 auto;padding:24px 18px 60px}
-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px}
-h1{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:34px;margin:0;letter-spacing:-.5px}
-h1 span{color:var(--accent)}
-.sub{color:var(--muted);margin-top:2px}
-.weeknav{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
-.weeknav button{border:0;background:transparent;width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--ink)}
-.weeknav button:hover{background:var(--accent-soft)}
-.weeknav .lbl{min-width:190px;text-align:center;font-weight:600}
-.tabs{display:flex;gap:6px;margin:6px 0 18px;flex-wrap:wrap}
-.tab{border:1px solid var(--line);background:var(--card);padding:8px 16px;border-radius:999px;color:var(--muted);font-weight:500}
-.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.btn{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:10px;font-weight:500;color:var(--ink)}
-.btn:hover{border-color:var(--accent)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;color:inherit}
+input,textarea,select{font:inherit;color:inherit}
+code{background:var(--bg);padding:1px 6px;border-radius:6px;font-size:.92em}
+a{color:var(--accent)}
+.muted{color:var(--muted)} .small{font-size:13px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 20px 40px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:14px;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:22px}
+h1{font-size:24px;font-weight:700;letter-spacing:-.4px;margin:0;line-height:1.1}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.weeknav{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
+.nav-ic{border:0;background:transparent;width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;color:var(--ink2)}
+.nav-ic:hover{background:var(--bg)}
+.todaybtn{border:0;background:transparent;padding:8px 12px;border-radius:999px;font-weight:600;font-size:13px;color:var(--ink2)}
+.todaybtn.on{background:var(--accent-soft);color:var(--accent-ink)}
+
+/* tabs: desktop segmented, mobile bottom bar */
+.tabs{display:flex;gap:4px;background:#eceef1;padding:4px;border-radius:14px;margin-bottom:18px;width:max-content;max-width:100%}
+.tab{border:0;background:transparent;padding:8px 14px;border-radius:10px;display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px;color:var(--ink2);transition:background .15s,color .15s}
+.tab.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.ti{position:relative;display:inline-flex}
+.ti svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.badge{position:absolute;top:-6px;right:-9px;background:var(--hot);color:#fff;border-radius:999px;min-width:17px;height:17px;padding:0 5px;font-size:10.5px;line-height:17px;text-align:center;font-weight:700;border:2px solid #eceef1}
+.tab.on .badge{border-color:var(--card)}
+
+/* chips / buttons */
+.chips{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.pill{flex:none;border:1px solid var(--line2);background:var(--card);padding:8px 14px;border-radius:999px;font-weight:600;font-size:13.5px;color:var(--ink2);white-space:nowrap}
+.pill:hover{border-color:#cfd4db}
+.pill.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn{border:1px solid var(--line2);background:var(--card);padding:9px 15px;border-radius:12px;font-weight:600;font-size:14px}
+.btn:hover{border-color:#cfd4db}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.primary:hover{filter:brightness(1.05)}
-.btn.ghost{background:transparent}
+.btn.primary:hover{background:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:10px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+
+/* week grid */
 .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
-.day{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-.day.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
-.dname{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;display:flex;justify-content:space-between;align-items:baseline}
-.dname small{font-family:Inter,sans-serif;font-weight:500;font-size:12px;color:var(--muted)}
-.slot{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;min-height:62px;text-align:left;background:transparent;width:100%;display:flex;flex-direction:column;gap:2px;transition:.15s}
-.slot:hover{border-color:var(--accent);background:var(--accent-soft)}
-.slot .meal{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-.slot .dish{font-weight:600;color:var(--ink)}
-.slot .empty{color:var(--muted)}
-.slot.filled{border-style:solid;background:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
-.shop-list{list-style:none;margin:0;padding:0;columns:2;column-gap:28px}
-@media (max-width:700px){.shop-list{columns:1}}
-.shop-list li{break-inside:avoid;display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
-.shop-list li.done span{text-decoration:line-through;color:var(--muted)}
-.shop-list input{margin-top:3px;accent-color:var(--green);width:17px;height:17px}
-.shop-list .for{display:block;font-size:12px;color:var(--muted)}
-.recipes{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.recipe{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
-.recipe h3{margin:0;font-family:Fraunces,Georgia,serif;font-size:18px}
-.recipe .ing{color:var(--muted);font-size:13px}
-.recipe .acts{margin-top:auto;display:flex;gap:6px;padding-top:6px}
-.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:600;margin-right:4px}
-.muted{color:var(--muted)}
-.empty-state{text-align:center;padding:40px 10px;color:var(--muted)}
-/* modal */
-.overlay{position:fixed;inset:0;background:rgba(43,38,32,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
-.modal{background:var(--card);border-radius:18px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.modal h2{margin:0 0 4px;font-family:Fraunces,Georgia,serif}
-.field{display:flex;flex-direction:column;gap:4px;margin:12px 0}
-.field label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.field input,.field textarea{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff}
-.field textarea{min-height:110px;resize:vertical}
-.picklist{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto;margin:8px 0}
-.pick{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 11px;text-align:left}
-.pick:hover,.pick.sel{border-color:var(--accent);background:var(--accent-soft)}
-.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
-.status{font-size:12px;color:var(--muted);text-align:right;margin-top:24px}
-.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
-@media (max-width:420px){.tpls{grid-template-columns:1fr}}
-.tt{width:100%;border-collapse:collapse;font-size:14px}
-.tt th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:4px 6px;font-weight:600}
-.tt tbody th{width:34px}
-.tt td{border-top:1px solid var(--line);padding:2px}
-.cell{border:0;background:transparent;text-align:left;width:100%;padding:6px;border-radius:8px;color:var(--ink)}
-.cell:hover{background:var(--accent-soft)}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:20}
-.badge{background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:11px;margin-left:4px}
-.tab.on .badge{background:#fff;color:var(--ink)}
-.chip{margin-top:4px;align-self:flex-start;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--ink)}
-.chip.hot{background:var(--accent);color:#fff}
-.note{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:14px}
-.gh{font-family:Fraunces,Georgia,serif;font-size:17px;margin:18px 0 8px}
+.day{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;border:1.5px solid transparent}
+.day.today{border-color:var(--accent)}
+.dname{display:flex;align-items:baseline;gap:6px;padding:2px 4px 4px;flex-wrap:wrap}
+.dn-long{display:none}
+.dn-short{font-weight:700;font-size:16px}
+.dname small{color:var(--muted);font-size:12px}
+.ttag{margin-left:auto;background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.slot{border:0;background:var(--bg);border-radius:var(--r-sm);padding:9px 10px;min-height:64px;text-align:left;width:100%;display:flex;flex-direction:column;gap:2px;transition:background .15s,transform .1s}
+.slot:hover{background:#eef0f3}
+.slot:active{transform:scale(.98)}
+.slot.filled{background:var(--accent-soft)}
+.slot.filled:hover{background:#dcefe5}
+.meal{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.slot.filled .meal{color:var(--accent-ink);opacity:.7}
+.dish{font-weight:600;font-size:14px;line-height:1.3;color:var(--ink)}
+.empty{color:var(--muted);font-size:13.5px}
+.empty::before{content:"+ "}
+.chip{margin-top:5px;align-self:flex-start;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fff;color:var(--ink2);box-shadow:var(--shadow)}
+.chip.hot{background:var(--hot);color:#fff}
+
+/* cards & generic */
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.empty-state{text-align:center;padding:44px 16px;color:var(--muted)}
+.note{background:var(--hot-soft);color:#8a3415;border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;font-size:14px}
+.gh{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:20px 2px 10px;font-weight:700}
+.status{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:28px}
+.status a{color:inherit}
+.dot{width:7px;height:7px;border-radius:50%;background:#c3c8cf}
+.dot.live{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+
+/* suggestions */
 .sugs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .modal .sugs{grid-template-columns:1fr}
-.sug{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
-.sug.new{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.sug{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;border:1.5px solid transparent}
+.modal .sug{box-shadow:none;border-color:var(--line)}
+.sug.new{border-color:var(--hot)}
 .sug-top{display:flex;justify-content:space-between;gap:8px}
-.sug-name{font-weight:600;font-size:16px}
-.small{font-size:13px}
-.x{border:0;background:transparent;color:var(--muted);width:28px;height:28px;border-radius:50%}
-.x:hover{background:var(--line)}
+.sug-name{font-weight:700;font-size:16px;margin-bottom:2px}
+.x{border:0;background:transparent;color:var(--muted);width:30px;height:30px;border-radius:50%;flex:none}
+.x:hover{background:var(--bg)}
 .sug-acts{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.vote{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:13px}
-.vote.on{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:600}
-.btn.sm{padding:5px 10px;font-size:13px}
-.sel{border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:#fff;font:inherit;font-size:13px}
-.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin:14px 0 6px}
-.seg button{flex:1;border:0;background:transparent;padding:8px;border-radius:8px;font-weight:600;color:var(--muted)}
-.seg button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
-.addrow{display:flex;gap:8px;margin-top:14px}
-.addrow input{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff}
-.tpl-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
-.tpl-head h3{margin:0;font-family:Fraunces,Georgia,serif}
+.vote{border:0;background:var(--bg);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.vote.on{background:var(--accent-soft);color:var(--accent-ink)}
+.sel{border:1px solid var(--line2);border-radius:10px;padding:6px 8px;background:#fff;font-size:13px}
 
-.login{max-width:520px}
-.login h2{margin:0 0 6px;font-family:Fraunces,Georgia,serif}
-.status a{color:inherit}
-code{background:var(--bg);padding:1px 5px;border-radius:5px}
+/* shopping */
+.shop-list{list-style:none;margin:0;padding:0;columns:2;column-gap:32px}
+.shop-list li{break-inside:avoid;display:flex;align-items:flex-start;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.shop-list li.done>span{color:var(--muted);text-decoration:line-through}
+.shop-list input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #cfd4db;margin:0;display:grid;place-items:center;cursor:pointer;transition:.15s}
+.shop-list input:checked{background:var(--accent);border-color:var(--accent)}
+.shop-list input:checked::after{content:"";width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.shop-list .for{display:block;font-size:12px;color:var(--muted);text-decoration:none}
+.addrow{display:flex;gap:8px;margin-top:14px}
+.addrow input{flex:1;min-width:0;border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff}
+.addrow input:focus,.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* templates */
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.tpl-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.tpl-head h3{margin:0;font-size:17px}
+.tt{width:100%;border-collapse:collapse;font-size:14px}
+.tt th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:4px 6px;font-weight:700}
+.tt tbody th{width:36px}
+.tt td{border-top:1px solid var(--line);padding:2px}
+.cell{border:0;background:transparent;text-align:left;width:100%;padding:7px 6px;border-radius:8px}
+.cell:hover{background:var(--bg)}
+
+/* recipes */
+.recipes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.recipe{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.recipe h3{margin:0;font-size:16px}
+.recipe .ing{color:var(--muted);font-size:13px}
+.recipe .acts{margin-top:auto;display:flex;gap:6px;padding-top:6px}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--ink2);font-weight:600;margin-right:4px}
+
+/* modal / sheet */
+.overlay{position:fixed;inset:0;background:rgba(15,18,24,.38);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30;animation:fade .15s ease}
+.modal{background:var(--card);border-radius:22px;max-width:520px;width:100%;max-height:86vh;overflow:auto;padding:22px;box-shadow:var(--shadow-lg);animation:pop .18s ease}
+.modal h2{margin:0 0 4px;font-size:20px;letter-spacing:-.2px}
+.field{display:flex;flex-direction:column;gap:5px;margin:14px 0}
+.field label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field textarea{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff}
+.field textarea{min-height:110px;resize:vertical}
+.picklist{display:flex;flex-direction:column;gap:2px;max-height:260px;overflow:auto;margin:6px 0;border-radius:12px}
+.pick{border:0;background:transparent;border-radius:10px;padding:10px 12px;text-align:left;font-weight:500}
+.pick:hover{background:var(--bg)}
+.pick.sel{background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.seg{display:flex;background:#eceef1;border-radius:12px;padding:3px;margin:16px 0 6px}
+.seg button{flex:1;border:0;background:transparent;padding:9px;border-radius:9px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:500;z-index:40;box-shadow:var(--shadow-lg);animation:pop .18s ease;max-width:90vw}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}}
+.toast{animation:none}
+
+/* login */
+.login{max-width:480px;margin:40px auto 0}
+.login h2{margin:0 0 6px;font-size:20px}
+
+/* ---------- tablet ---------- */
+@media (max-width:1100px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .day{flex-direction:column}
+  .dn-long{display:inline;font-weight:700;font-size:16px}
+  .dn-short{display:none}
+  .slot{min-height:56px}
+}
+/* ---------- phone ---------- */
+@media (max-width:680px){
+  .wrap{padding:14px 14px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom))}
+  .top{margin-bottom:14px}
+  .brand .logo{width:38px;height:38px;border-radius:12px;font-size:19px}
+  h1{font-size:21px}
+  .weeknav{width:100%;justify-content:space-between}
+  .todaybtn{flex:1}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .day{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px}
+  .dname{grid-column:1/-1}
+  .tabs{position:fixed;left:0;right:0;bottom:0;margin:0;width:auto;border-radius:0;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20;justify-content:space-around}
+  .tab{flex:1;flex-direction:column;gap:3px;padding:6px 2px;font-size:10.5px;background:transparent!important;box-shadow:none!important;color:var(--muted)}
+  .tab.on{color:var(--accent)}
+  .ti svg{width:23px;height:23px}
+  .badge{border-color:#fff}
+  .shop-list{columns:1}
+  .tpls,.sugs,.recipes{grid-template-columns:1fr}
+  .overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:22px 22px 0 0;max-height:88vh;padding:10px 18px calc(18px + env(safe-area-inset-bottom));animation:sheet .22s ease}
+  .modal::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:#d7dbe0;margin:0 auto 12px}
+  .toast{bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom))}
+}
+@keyframes sheet{from{transform:translateY(40px);opacity:.4}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// ===================================================================
-//  EINSTELLUNGEN – hier die zwei Werte aus Supabase eintragen
-//  (Supabase → Project Settings → API)
-// ===================================================================
-var SUPABASE_URL = "https://ypifgcqachkzozhjonvn.supabase.co";
-var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
-// ===================================================================
-
-(function(){
-  "use strict";
-  var app=document.getElementById("app");
-  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
-  function shell(inner){app.innerHTML='<div class="wrap"><header><div><h1>Menü <span>für die Woche</span></h1><div class="sub">Gemeinsam planen, vorschlagen, einkaufen.</div></div></header><div class="card login">'+inner+'</div></div>';}
-
-  if(/DEIN-PROJEKT|DEIN-ANON-KEY/.test(SUPABASE_URL+SUPABASE_ANON_KEY)||!window.supabase){
-    shell('<h2>Fast geschafft!</h2><p class="muted">Trage in der Datei <b>index.html</b> ganz oben bei <code>SUPABASE_URL</code> und <code>SUPABASE_ANON_KEY</code> die Werte aus deinem Supabase-Projekt ein (Project Settings → API).</p>');
-    return;
-  }
-  var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-
-  function showLogin(msg){
-    shell('<h2>Anmelden</h2><p class="muted">Gib deine E-Mail-Adresse ein. Du bekommst einen Link, mit dem du dich anmeldest – ganz ohne Passwort.</p>'+
-      '<form id="loginf" class="addrow"><input type="email" name="email" required placeholder="name@beispiel.ch" autocomplete="email"><button class="btn primary">Login-Link senden</button></form>'+
-      (msg?'<p class="note" style="margin-top:14px">'+msg+'</p>':''));
-    document.getElementById("loginf").addEventListener("submit",function(e){
-      e.preventDefault();var email=e.target.elements.email.value.trim();if(!email)return;
-      var btn=e.target.querySelector("button");btn.disabled=true;btn.textContent="Sende …";
-      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(r){
-        if(r.error)showLogin("Das hat nicht geklappt: "+esc(r.error.message));
-        else showLogin("📬 Schau in dein Postfach (<b>"+esc(email)+"</b>) und tippe auf den Link. Du kannst dieses Fenster schliessen.");
-      });
-    });
-  }
-
-  function clone(o){return o==null?o:JSON.parse(JSON.stringify(o));}
-  function deepMerge(a,b){
-    if(!a||typeof a!=="object"||Array.isArray(a)||!b||typeof b!=="object"||Array.isArray(b))return b;
-    Object.keys(b).forEach(function(k){var bv=b[k],av=a[k];a[k]=(bv&&typeof bv==="object"&&!Array.isArray(bv)&&av&&typeof av==="object"&&!Array.isArray(av))?deepMerge(av,bv):bv;});
-    return a;
-  }
-  function collOf(p){return p.split("/").slice(0,-1).join("/");}
-  function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
-
-  function makeBackend(email,members){
-    var cache={},listeners=[];
-    function snapFor(c){var docs=Object.keys(cache).filter(function(p){return collOf(p)===c;}).map(function(p){var d=cache[p];return {id:p.split("/").pop(),exists:true,data:function(){return d;},metadata:{fromCache:false,hasPendingWrites:false}};});return {docs:docs,size:docs.length,empty:!docs.length,metadata:{fromCache:false,hasPendingWrites:false},docChanges:function(){return [];}};}
-    function emit(c){listeners.forEach(function(l){if(l.c===c)l.cb(snapFor(c));});}
-    function emitAll(){listeners.forEach(function(l){l.cb(snapFor(l.c));});}
-    function err(e){var rls=e&&(e.code==="42501"||/row-level security|permission/i.test(e.message||""));return {code:rls?"invalid_argument":"unavailable",message:e&&e.message};}
-    function loadAll(){return sb.from("docs").select("path,data").then(function(r){if(r.error)throw r.error;var n={};r.data.forEach(function(row){n[row.path]=row.data;});cache=n;});}
-    var ready=loadAll();
-    sb.channel("docs-live").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){
-      if(p.eventType==="DELETE"){var path=p.old&&p.old.path;if(path&&cache[path]){delete cache[path];emit(collOf(path));}}
-      else if(p.new&&p.new.path){cache[p.new.path]=p.new.data;emit(collOf(p.new.path));}
-    }).subscribe();
-    document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")loadAll().then(emitAll,function(){});});
-    function check(r){if(r.error)throw err(r.error);}
-    function docRef(path){return {id:path.split("/").pop(),path:path,
-      set:function(d){cache[path]=clone(d);emit(collOf(path));return sb.from("docs").upsert({path:path,data:d,updated_at:new Date().toISOString()}).then(check);},
-      update:function(d){cache[path]=deepMerge(clone(cache[path])||{},clone(d));emit(collOf(path));return sb.rpc("merge_doc",{p_path:path,p_patch:d}).then(check);},
-      delete:function(){delete cache[path];emit(collOf(path));return sb.from("docs").delete().eq("path",path).then(check);}
-    };}
-    var db={doc:docRef,collection:function(c){return {path:c,doc:function(id){return docRef(c+"/"+(id||newId()));},
-      onSnapshot:function(cb,eb){var l={c:c,cb:cb};listeners.push(l);ready.then(function(){cb(snapFor(c));},function(e){if(eb)eb(err(e));});return function(){listeners=listeners.filter(function(x){return x!==l;});};}};}};
-    var names={};members.forEach(function(m){names[m.email.toLowerCase()]=m.name;});
-    var user={id:function(){return Promise.resolve(email);},can:function(){return Promise.resolve(true);},
-      profiles:function(ids){var o={};ids.forEach(function(id){o[id]={name:names[String(id).toLowerCase()]||""};});return Promise.resolve(o);}};
-    return {db:db,user:user,email:email,logout:function(){sb.auth.signOut().then(function(){location.reload();});}};
-  }
-
-  var started=false;
-  function boot(session){
-    if(started)return;
-    if(!session){showLogin();return;}
-    started=true;
-    var email=(session.user&&session.user.email||"").toLowerCase();
-    shell('<p class="muted">Lade euren Plan …</p>');
-    sb.from("members").select("email,name").then(function(r){
-      if(r.error||!r.data||!r.data.some(function(m){return m.email.toLowerCase()===email;})){
-        shell('<h2>Kein Zugriff</h2><p class="muted">Die Adresse <b>'+esc(email)+'</b> ist nicht als Mitglied eingetragen. Trage sie in Supabase in der Tabelle <code>members</code> ein.</p><button class="btn" id="lo">Abmelden</button>');
-        document.getElementById("lo").onclick=function(){sb.auth.signOut().then(function(){location.reload();});};
-        return;
-      }
-      if(location.hash.indexOf("access_token")>=0)history.replaceState(null,"",location.pathname);
-      window.startApp(makeBackend(email,r.data));
-    });
-  }
-  sb.auth.getSession().then(function(r){boot(r.data&&r.data.session);});
-  sb.auth.onAuthStateChange(function(ev,session){if(ev==="SIGNED_IN"&&session)boot(session);});
-})();
-
-</script>
 <script>
 window.startApp=function(backend){
   "use strict";
@@ -271,41 +258,51 @@ window.startApp=function(backend){
   function replaceWeekDays(key,days){var w=week(key);var nw={days:days,extra:w.extra||[],checked:w.checked||{}};write("weeks/"+key,function(r){return r.set(nw);});}
 
   // ---------- render ----------
+  var MONTHS=["Jan","Feb","März","Apr","Mai","Juni","Juli","Aug","Sept","Okt","Nov","Dez"];
+  function dlong(d){return d.getDate()+". "+MONTHS[d.getMonth()];}
+  var ICON={
+    plan:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+    sugg:'<svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>',
+    shop:'<svg viewBox="0 0 24 24"><path d="M3 4h2.2l2.3 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6.1"/><circle cx="10" cy="20.5" r="1.3"/><circle cx="17" cy="20.5" r="1.3"/></svg>',
+    templates:'<svg viewBox="0 0 24 24"><path d="M12 3 3 7.5 12 12l9-4.5L12 3z"/><path d="m3 12 9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg>',
+    recipes:'<svg viewBox="0 0 24 24"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v16H6.5A1.5 1.5 0 0 0 5 20.5v-16z"/><path d="M5 20.5A1.5 1.5 0 0 0 6.5 22H19v-3M9 8h6"/></svg>'
+  };
   function render(){
     var app=document.getElementById("app");
     var a=document.activeElement, keep=null;
     if(a&&app.contains(a)&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.type!=="checkbox"){keep={sel:a.hasAttribute("data-filter")?"[data-filter]":a.name?'[name="'+a.name+'"]':null,val:a.value,s:a.selectionStart,e:a.selectionEnd};}
     var mon=monday(ui.offset),sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var h='<div class="wrap"><header><div><h1>Menü <span>für die Woche</span></h1><div class="sub">Gemeinsam planen, vorschlagen, einkaufen.</div></div>'+
-      '<div class="weeknav"><button data-a="prev" aria-label="Vorherige Woche">‹</button><div class="lbl">KW '+isoWeek(mon)[1]+' · '+fmt(mon)+' – '+fmt(sun)+sun.getFullYear()+'</div><button data-a="next" aria-label="Nächste Woche">›</button></div></header>';
+    var h='<div class="wrap"><header class="top"><div class="brand"><div class="logo">🍽️</div><div><h1>Wochenmenü</h1><div class="sub">KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</div></div></div>'+
+      '<div class="weeknav"><button class="nav-ic" data-a="prev" aria-label="Vorherige Woche">‹</button><button class="todaybtn'+(ui.offset===0?" on":"")+'" data-a="thisweek">Diese Woche</button><button class="nav-ic" data-a="next" aria-label="Nächste Woche">›</button></div></header>';
     if(conn==="nodb"){app.innerHTML=h+'<div class="card empty-state">Die Datenbank ist gerade nicht erreichbar. Bitte lade die Seite neu.</div></div>';return;}
     var allLoaded=loaded.recipes&&loaded.templates&&loaded.weeks&&loaded.sugg;
     var nNew=sugList().filter(isNew).length, nAll=Object.keys(D.sugg).length;
-    h+='<div class="tabs">'+[["plan","Wochenplan"],["sugg","Vorschläge"+(nNew?' <b class="badge">'+nNew+' neu</b>':nAll?" ("+nAll+")":"")],["shop","Einkaufsliste"],["templates","Vorlagen"],["recipes","Gerichte"]].map(function(t){return '<button class="tab'+(ui.tab===t[0]?" on":"")+'" data-tab="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>';
+    h+='<nav class="tabs">'+[["plan","Woche"],["sugg","Vorschläge"],["shop","Einkauf"],["templates","Vorlagen"],["recipes","Gerichte"]].map(function(t){var b=t[0]==="sugg"&&nNew?'<b class="badge">'+nNew+'</b>':'';return '<button class="tab'+(ui.tab===t[0]?" on":"")+'" data-tab="'+t[0]+'"><span class="ti">'+ICON[t[0]]+b+'</span><span class="tl">'+t[1]+'</span></button>';}).join("")+'</nav><main>';
     if(!allLoaded&&conn!=="slow")h+='<div class="card empty-state">Lade euren Plan …</div>';
     else{
       if(conn==="slow")h+='<div class="note">Die Daten sind gerade nicht erreichbar – was du siehst, ist evtl. nicht aktuell.</div>';
       if(readOnly)h+='<div class="note">Du kannst diesen Plan ansehen, aber nicht bearbeiten. Prüfe, ob deine E-Mail-Adresse in Supabase als Mitglied eingetragen ist.</div>';
       h+=ui.tab==="plan"?renderPlan(mon):ui.tab==="sugg"?renderSugg():ui.tab==="shop"?renderShop():ui.tab==="templates"?renderTemplates():renderRecipes();
     }
-    h+='<div class="status">'+(readOnly?"Nur ansehen":conn==="live"?"● Live – Änderungen werden geteilt":"Verbinde …")+' · '+esc(backend.email)+' · <a href="#" data-a="logout">Abmelden</a></div></div>';
+    h+='</main><div class="status"><span class="dot'+(conn==="live"&&!readOnly?" live":"")+'"></span>'+(readOnly?"Nur ansehen":conn==="live"?"Live verbunden":"Verbinde …")+' · '+esc(backend.email)+' · <a href="#" data-a="logout">Abmelden</a></div></div>';
     if(ui.modal)h+=renderModal();
     app.innerHTML=h;
     if(keep&&keep.sel){var f=app.querySelector(keep.sel);if(f){f.value=keep.val;f.focus();try{f.setSelectionRange(keep.s,keep.e);}catch(e){}}}
-    else{var af=app.querySelector("[autofocus]");if(af&&ui.justOpened){af.focus();}}
+    else{var af=app.querySelector("[autofocus]");if(af&&ui.justOpened&&window.matchMedia&&window.matchMedia("(pointer:fine)").matches){af.focus();}}
     ui.justOpened=false;
   }
   function renderPlan(mon){
     var key=weekKey(ui.offset),w=week(key),today=new Date();today.setHours(0,0,0,0);
-    var h='<div class="toolbar"><button class="btn primary" data-a="applytpl">📋 Vorlage anwenden</button><button class="btn" data-a="fill">🎲 Leere Abende füllen</button><button class="btn" data-a="savetpl">Als Vorlage speichern</button><button class="btn ghost" data-a="clear">Woche leeren</button></div><div class="grid">';
+    var h='<div class="chips"><button class="pill primary" data-a="applytpl">Vorlage anwenden</button><button class="pill" data-a="fill">Leere Abende füllen</button><button class="pill" data-a="savetpl">Als Vorlage speichern</button><button class="pill" data-a="clear">Woche leeren</button></div><div class="grid">';
     DAYS.forEach(function(dn,i){
       var d=new Date(mon);d.setDate(mon.getDate()+i);
-      h+='<div class="day'+(d.getTime()===today.getTime()?" today":"")+'"><div class="dname">'+dn.slice(0,2)+'<small>'+fmt(d)+'</small></div>';
+      var isT=d.getTime()===today.getTime();
+      h+='<section class="day'+(isT?" today":"")+'"><div class="dname"><span class="dn-long">'+dn+'</span><span class="dn-short">'+dn.slice(0,2)+'</span><small>'+dlong(d)+'</small>'+(isT?'<span class="ttag">Heute</span>':'')+'</div>';
       MEALS.forEach(function(m){
         var name=label(slotOf(w.days,i,m[0])),sg=sugFor(key,i,m[0]),nn=sg.filter(isNew).length;
-        h+='<button class="slot'+(name?" filled":"")+'" data-slot="'+i+'|'+m[0]+'"><span class="meal">'+m[1]+'</span>'+(name?'<span class="dish">'+esc(name)+'</span>':'<span class="empty">+ hinzufügen</span>')+(sg.length?'<span class="chip'+(nn?" hot":"")+'">💡 '+sg.length+' Vorschlag'+(sg.length>1?"e":"")+'</span>':'')+'</button>';
+        h+='<button class="slot'+(name?" filled":"")+'" data-slot="'+i+'|'+m[0]+'"><span class="meal">'+m[1]+'</span>'+(name?'<span class="dish">'+esc(name)+'</span>':'<span class="empty">Hinzufügen</span>')+(sg.length?'<span class="chip'+(nn?" hot":"")+'">'+sg.length+' Vorschlag'+(sg.length>1?"e":"")+'</span>':'')+'</button>';
       });
-      h+='</div>';
+      h+='</section>';
     });
     return h+'</div>';
   }
@@ -323,7 +320,7 @@ window.startApp=function(backend){
   }
   function renderSugg(){
     var list=sugList();
-    var h='<div class="toolbar"><button class="btn primary" data-a="newsugg">💡 Idee vorschlagen</button></div>';
+    var h='<div class="chips"><button class="pill primary" data-a="newsugg">+ Idee vorschlagen</button></div>';
     if(!list.length)return h+'<div class="card empty-state">Noch keine Vorschläge. Tippe im Wochenplan auf ein Feld und wähle «Vorschlagen» – oder schlage hier eine Idee für irgendwann vor.</div>';
     var key=weekKey(ui.offset),groups=[["Diese Woche (KW "+kwOf(key)+")",list.filter(function(s){return s.week===key;})],["Andere Wochen",list.filter(function(s){return s.week&&s.week!==key;})],["Ideen für irgendwann",list.filter(function(s){return !s.week;})]];
     groups.forEach(function(g){if(!g[1].length)return;h+='<h3 class="gh">'+esc(g[0])+'</h3><div class="sugs">'+g[1].map(function(s){return sugCard(s,false);}).join("")+'</div>';});
@@ -359,7 +356,7 @@ window.startApp=function(backend){
   }
   function renderRecipes(){
     var list=recipesSorted();
-    var h='<div class="toolbar"><button class="btn primary" data-a="newrecipe">+ Neues Gericht</button></div><div class="recipes">';
+    var h='<div class="chips"><button class="pill primary" data-a="newrecipe">+ Neues Gericht</button></div><div class="recipes">';
     list.forEach(function(r){h+='<div class="recipe"><h3>'+esc(r.name)+'</h3><div>'+(r.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("")+'</div><div class="ing">'+esc((r.ingredients||[]).join(", "))+'</div><div class="acts"><button class="btn sm" data-edit="'+r.id+'">Bearbeiten</button><button class="btn ghost sm" data-del="'+r.id+'">Löschen</button></div></div>';});
     if(!list.length)h+='<div class="empty-state">Noch keine Gerichte.</div>';
     return h+'</div>';
@@ -379,7 +376,7 @@ window.startApp=function(backend){
         h+='<div class="muted">'+(cur?'Geplant: <b>'+esc(cur)+'</b>':'Noch nichts geplant.')+'</div>';
         var sg=sugFor(weekKey(ui.offset),m.day,m.meal);
         if(sg.length)h+='<h3 class="gh">Vorschläge</h3><div class="sugs">'+sg.map(function(s){return sugCard(s,true);}).join("")+'</div>';
-        h+='<div class="seg"><button class="'+(mode==="set"?"on":"")+'" data-mode="set">Festlegen</button><button class="'+(mode==="suggest"?"on":"")+'" data-mode="suggest">💡 Vorschlagen</button></div>';
+        h+='<div class="seg"><button class="'+(mode==="set"?"on":"")+'" data-mode="set">Festlegen</button><button class="'+(mode==="suggest"?"on":"")+'" data-mode="suggest">Vorschlagen</button></div>';
         h+='<div class="muted small">'+(mode==="set"?"Wähle ein Gericht – es wird direkt eingeplant.":"Wähle ein Gericht – es erscheint als Vorschlag, über den ihr abstimmen könnt.")+'</div>';
       }
       h+='<div class="field"><input data-filter placeholder="Suchen …" value="'+esc(m.q||"")+'" autofocus></div>'+pickList(mode==="set"?v.id:null,m.q);
@@ -406,7 +403,7 @@ window.startApp=function(backend){
   function addSugg(day,meal,val){
     var ref=db.collection("suggestions").doc();
     var s={week:day==null?null:weekKey(ui.offset),day:day,meal:day==null?null:meal,recipeId:val.id||null,text:val.text||null,by:me,at:Date.now(),votes:{}};
-    write("suggestions/"+ref.id,function(r){return r.set(s);});toast("Vorschlag gespeichert 💡");
+    write("suggestions/"+ref.id,function(r){return r.set(s);});toast("Vorschlag gespeichert");
   }
   function acceptSugg(id,day,meal,wk){
     var s=D.sugg[id];if(!s)return;
@@ -422,6 +419,7 @@ window.startApp=function(backend){
   }
   var actions={
     logout:function(){backend.logout();},
+    thisweek:function(){ui.offset=0;render();},
     prev:function(){ui.offset--;render();},next:function(){ui.offset++;render();},
     close:function(){ui.modal=null;render();},
     confirm:function(){var r=ui.modal.run;ui.modal=null;r();render();},
@@ -529,6 +527,99 @@ window.startApp=function(backend){
     });
   },function(){conn="nodb";render();});
 };
+
+</script>
+<script>
+// ===================================================================
+//  EINSTELLUNGEN – hier die zwei Werte aus Supabase eintragen
+//  (Supabase → Project Settings → API)
+// ===================================================================
+var SUPABASE_URL = "https://ypifgcqachkzozhjonvn.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
+// ===================================================================
+
+(function(){
+  "use strict";
+  var app=document.getElementById("app");
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function shell(inner){app.innerHTML='<div class="wrap"><header class="top"><div class="brand"><div class="logo">🍽️</div><div><h1>Wochenmenü</h1><div class="sub">Gemeinsam planen, vorschlagen, einkaufen.</div></div></div></header><div class="card login">'+inner+'</div></div>';}
+
+  if(/DEIN-PROJEKT|DEIN-ANON-KEY/.test(SUPABASE_URL+SUPABASE_ANON_KEY)||!window.supabase){
+    shell('<h2>Fast geschafft!</h2><p class="muted">Trage in der Datei <b>index.html</b> ganz oben bei <code>SUPABASE_URL</code> und <code>SUPABASE_ANON_KEY</code> die Werte aus deinem Supabase-Projekt ein (Project Settings → API).</p>');
+    return;
+  }
+  var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+  function showLogin(msg){
+    shell('<h2>Anmelden</h2><p class="muted">Gib deine E-Mail-Adresse ein. Du bekommst einen Link, mit dem du dich anmeldest – ganz ohne Passwort.</p>'+
+      '<form id="loginf" class="addrow"><input type="email" name="email" required placeholder="name@beispiel.ch" autocomplete="email"><button class="btn primary">Login-Link senden</button></form>'+
+      (msg?'<p class="note" style="margin-top:14px">'+msg+'</p>':''));
+    document.getElementById("loginf").addEventListener("submit",function(e){
+      e.preventDefault();var email=e.target.elements.email.value.trim();if(!email)return;
+      var btn=e.target.querySelector("button");btn.disabled=true;btn.textContent="Sende …";
+      sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}}).then(function(r){
+        if(r.error)showLogin("Das hat nicht geklappt: "+esc(r.error.message));
+        else showLogin("📬 Schau in dein Postfach (<b>"+esc(email)+"</b>) und tippe auf den Link. Du kannst dieses Fenster schliessen.");
+      });
+    });
+  }
+
+  function clone(o){return o==null?o:JSON.parse(JSON.stringify(o));}
+  function deepMerge(a,b){
+    if(!a||typeof a!=="object"||Array.isArray(a)||!b||typeof b!=="object"||Array.isArray(b))return b;
+    Object.keys(b).forEach(function(k){var bv=b[k],av=a[k];a[k]=(bv&&typeof bv==="object"&&!Array.isArray(bv)&&av&&typeof av==="object"&&!Array.isArray(av))?deepMerge(av,bv):bv;});
+    return a;
+  }
+  function collOf(p){return p.split("/").slice(0,-1).join("/");}
+  function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+
+  function makeBackend(email,members){
+    var cache={},listeners=[];
+    function snapFor(c){var docs=Object.keys(cache).filter(function(p){return collOf(p)===c;}).map(function(p){var d=cache[p];return {id:p.split("/").pop(),exists:true,data:function(){return d;},metadata:{fromCache:false,hasPendingWrites:false}};});return {docs:docs,size:docs.length,empty:!docs.length,metadata:{fromCache:false,hasPendingWrites:false},docChanges:function(){return [];}};}
+    function emit(c){listeners.forEach(function(l){if(l.c===c)l.cb(snapFor(c));});}
+    function emitAll(){listeners.forEach(function(l){l.cb(snapFor(l.c));});}
+    function err(e){var rls=e&&(e.code==="42501"||/row-level security|permission/i.test(e.message||""));return {code:rls?"invalid_argument":"unavailable",message:e&&e.message};}
+    function loadAll(){return sb.from("docs").select("path,data").then(function(r){if(r.error)throw r.error;var n={};r.data.forEach(function(row){n[row.path]=row.data;});cache=n;});}
+    var ready=loadAll();
+    sb.channel("docs-live").on("postgres_changes",{event:"*",schema:"public",table:"docs"},function(p){
+      if(p.eventType==="DELETE"){var path=p.old&&p.old.path;if(path&&cache[path]){delete cache[path];emit(collOf(path));}}
+      else if(p.new&&p.new.path){cache[p.new.path]=p.new.data;emit(collOf(p.new.path));}
+    }).subscribe();
+    document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")loadAll().then(emitAll,function(){});});
+    function check(r){if(r.error)throw err(r.error);}
+    function docRef(path){return {id:path.split("/").pop(),path:path,
+      set:function(d){cache[path]=clone(d);emit(collOf(path));return sb.from("docs").upsert({path:path,data:d,updated_at:new Date().toISOString()}).then(check);},
+      update:function(d){cache[path]=deepMerge(clone(cache[path])||{},clone(d));emit(collOf(path));return sb.rpc("merge_doc",{p_path:path,p_patch:d}).then(check);},
+      delete:function(){delete cache[path];emit(collOf(path));return sb.from("docs").delete().eq("path",path).then(check);}
+    };}
+    var db={doc:docRef,collection:function(c){return {path:c,doc:function(id){return docRef(c+"/"+(id||newId()));},
+      onSnapshot:function(cb,eb){var l={c:c,cb:cb};listeners.push(l);ready.then(function(){cb(snapFor(c));},function(e){if(eb)eb(err(e));});return function(){listeners=listeners.filter(function(x){return x!==l;});};}};}};
+    var names={};members.forEach(function(m){names[m.email.toLowerCase()]=m.name;});
+    var user={id:function(){return Promise.resolve(email);},can:function(){return Promise.resolve(true);},
+      profiles:function(ids){var o={};ids.forEach(function(id){o[id]={name:names[String(id).toLowerCase()]||""};});return Promise.resolve(o);}};
+    return {db:db,user:user,email:email,logout:function(){sb.auth.signOut().then(function(){location.reload();});}};
+  }
+
+  var started=false;
+  function boot(session){
+    if(started)return;
+    if(!session){showLogin();return;}
+    started=true;
+    var email=(session.user&&session.user.email||"").toLowerCase();
+    shell('<p class="muted">Lade euren Plan …</p>');
+    sb.from("members").select("email,name").then(function(r){
+      if(r.error||!r.data||!r.data.some(function(m){return m.email.toLowerCase()===email;})){
+        shell('<h2>Kein Zugriff</h2><p class="muted">Die Adresse <b>'+esc(email)+'</b> ist nicht als Mitglied eingetragen. Trage sie in Supabase in der Tabelle <code>members</code> ein.</p><button class="btn" id="lo">Abmelden</button>');
+        document.getElementById("lo").onclick=function(){sb.auth.signOut().then(function(){location.reload();});};
+        return;
+      }
+      if(location.hash.indexOf("access_token")>=0)history.replaceState(null,"",location.pathname);
+      window.startApp(makeBackend(email,r.data));
+    });
+  }
+  sb.auth.getSession().then(function(r){boot(r.data&&r.data.session);});
+  sb.auth.onAuthStateChange(function(ev,session){if(ev==="SIGNED_IN"&&session)boot(session);});
+})();
 
 </script>
 </body>

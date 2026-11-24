@@ -5,10 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Wochenmenü">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%BD%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>:root{
@@ -199,6 +202,24 @@ h1{font-size:24px;font-weight:700;letter-spacing:-.4px;margin:0;line-height:1.1}
   .toast{bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom))}
 }
 @keyframes sheet{from{transform:translateY(40px);opacity:.4}}
+
+/* ---------- Einkauf: Kacheln ---------- */
+.quickadd{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:16px;padding:6px 6px 6px 14px;box-shadow:var(--shadow);margin-bottom:14px}
+.quickadd .qa-ic{color:var(--accent);font-size:20px;font-weight:700}
+.quickadd input{flex:1;min-width:0;border:0;background:transparent;padding:8px 2px;font-size:15px;outline:none}
+.shop-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 2px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.tile{border:0;border-radius:16px;background:var(--accent);color:#fff;aspect-ratio:1/1;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;box-shadow:0 2px 6px rgba(26,138,90,.25);transition:transform .12s,opacity .18s}
+.tile:active{transform:scale(.94)}
+.tile .te{font-size:34px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.15))}
+.tile .tn{font-size:12.5px;font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.tile.got{background:var(--card);color:var(--muted);box-shadow:var(--shadow)}
+.tile.got .te{filter:grayscale(1);opacity:.55}
+.tile.pop-out{transform:scale(.85);opacity:0}
+.got-head{display:flex;align-items:center;justify-content:space-between;margin:26px 2px 10px}
+@media (max-width:680px){.tiles{grid-template-columns:repeat(3,1fr)}.tile .te{font-size:36px}}
+@media (min-width:1100px){.tiles{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))}}
+img.logo{display:block;object-fit:cover;padding:0}
 </style>
 </head>
 <body>
@@ -272,7 +293,7 @@ window.startApp=function(backend){
     var a=document.activeElement, keep=null;
     if(a&&app.contains(a)&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.type!=="checkbox"){keep={sel:a.hasAttribute("data-filter")?"[data-filter]":a.name?'[name="'+a.name+'"]':null,val:a.value,s:a.selectionStart,e:a.selectionEnd};}
     var mon=monday(ui.offset),sun=new Date(mon);sun.setDate(mon.getDate()+6);
-    var h='<div class="wrap"><header class="top"><div class="brand"><div class="logo">🍽️</div><div><h1>Wochenmenü</h1><div class="sub">KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</div></div></div>'+
+    var h='<div class="wrap"><header class="top"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>Wochenmenü</h1><div class="sub">KW '+isoWeek(mon)[1]+' · '+dlong(mon)+' – '+dlong(sun)+'</div></div></div>'+
       '<div class="weeknav"><button class="nav-ic" data-a="prev" aria-label="Vorherige Woche">‹</button><button class="todaybtn'+(ui.offset===0?" on":"")+'" data-a="thisweek">Diese Woche</button><button class="nav-ic" data-a="next" aria-label="Nächste Woche">›</button></div></header>';
     if(conn==="nodb"){app.innerHTML=h+'<div class="card empty-state">Die Datenbank ist gerade nicht erreichbar. Bitte lade die Seite neu.</div></div>';return;}
     var allLoaded=loaded.recipes&&loaded.templates&&loaded.weeks&&loaded.sugg;
@@ -334,14 +355,52 @@ window.startApp=function(backend){
     });});
     return Object.keys(map).sort(function(a,b){return a.localeCompare(b,"de");}).map(function(k){return map[k];});
   }
+  // ---------- Einkauf im Kachel-Stil ----------
+  var CATS=[
+    ["gemuese","Früchte & Gemüse",["🥑","avocado"],["🍅","tomat","pelati"],["🥒","gurke"],["🥕","karotte","rüebli"],["🧅","zwiebel"],["🧄","knoblauch"],["🥬","salat","lauch"],["🥦","broccoli","brokkoli"],["🍆","aubergine"],["🫑","peperoni","paprika"],["🥒","zucchetti","zucchini","calabac"],["🍋","zitrone","limette"],["🍄","champignon","pilz"],["🌿","basilikum","petersilie","kräuter","sellerie"],["🍎","apfel"],["🍌","banane"],["🍊","orange"],["🥔","kartoffel"],["🥗","gemüse"]],
+    ["milch","Milch & Käse",["🥛","milch","rahm","joghurt","jogurt"],["🧈","butter"],["🧀","käse","parmesan","gruyère","mozzarella","feta","raclette","frischkäse"],["🥚","ei"]],
+    ["fleisch","Fleisch & Fisch",["🥓","speck","jamón","schinken"],["🐟","fisch","lachs"],["🍗","poulet","huhn","hähnchen"],["🥩","fleisch","filet","plätzli","schnitzel","hack","kalb","schwein","rind","solomillo","wurst"]],
+    ["brot","Brot & Gebäck",["🍞","brot","toast"],["🥐","gipfeli","croissant"],["🫓","teig"]],
+    ["vorrat","Vorrat",["🍝","spaghetti","pasta","orzo","nudel","hörnli","gnocchi"],["🍚","reis","quinoa","gerste"],["🫘","kichererbse","bohne","linse"],["🥫","bouillon","kokosmilch","currypaste","sauce"],["🫒","olivenöl","öl"],["🌾","mehl","paniermehl"],["🍯","konfitüre","honig"],["🧂","salz","pfeffer","gewürz","zucker"]],
+    ["getraenke","Getränke",["🍷","wein"],["🧃","saft"],["☕","kaffee"],["🍵","tee"],["💧","wasser"]],
+    ["tk","Tiefkühl",["🍟","pommes"],["🍕","pizza"]],
+    ["haushalt","Haushalt",["🧻","papier","toilettenpapier"],["🧽","spülmittel","schwamm","putz"],["🧼","seife","waschmittel"]]
+  ];
+  var FIRST=[["fleischkäse","fleisch","🥩"],["kokosmilch","vorrat","🥥"],["saft","getraenke","🧃"],["paniermehl","vorrat","🌾"],["currypaste","vorrat","🥫"],["pizzateig","brot","🫓"]];
+  function classify(name){
+    var n=" "+String(name).toLowerCase()+" ";
+    for(var f=0;f<FIRST.length;f++)if(n.indexOf(FIRST[f][0])>=0)return {cat:FIRST[f][1],icon:FIRST[f][2]};
+    for(var c=0;c<CATS.length;c++)for(var j=2;j<CATS[c].length;j++){var row=CATS[c][j];for(var x=1;x<row.length;x++){var kw=row[x];if(kw==="ei"?/[\s\-\/]eier?[\s\-\/]/.test(n):n.indexOf(kw)>=0)return {cat:CATS[c][0],icon:row[0]};}}
+    return {cat:"andere",icon:"🛒"};
+  }
+  var CATNAME={};CATS.forEach(function(c){CATNAME[c[0]]=c[1];});CATNAME.andere="Sonstiges";
+  var CATORDER=CATS.map(function(c){return c[0];}).concat(["andere"]);
+  function shopAll(key){
+    var w=week(key),chk=w.checked||{},out=[];
+    shopItems(key).forEach(function(it){var k=it.name.toLowerCase();out.push({k:k,name:it.name,sub:it.dishes.join(", "),on:!!chk[k],cl:classify(it.name)});});
+    (w.extra||[]).forEach(function(e,idx){var k="x:"+e.toLowerCase();out.push({k:k,name:e,sub:"",on:!!chk[k],cl:classify(e),idx:idx});});
+    return out;
+  }
+  function tile(it){
+    return '<button class="tile'+(it.on?" got":"")+'" data-tile="'+esc(it.k)+'" title="'+esc(it.sub||it.name)+'"><span class="te">'+it.cl.icon+'</span><span class="tn">'+esc(it.name)+'</span>'+(it.idx!=null&&!it.on?'':'')+'</button>';
+  }
   function renderShop(){
-    var key=weekKey(ui.offset),w=week(key),items=shopItems(key),chk=w.checked||{},extra=w.extra||[];
-    if(!items.length&&!extra.length)return '<div class="card empty-state">Noch nichts geplant. Die Zutaten der geplanten Gerichte erscheinen automatisch hier.</div><form data-form="extra" class="addrow"><input name="x" placeholder="Etwas hinzufügen, z. B. Milch"><button class="btn">Hinzufügen</button></form>';
-    var open=items.filter(function(it){return !chk[it.name.toLowerCase()];}).length+extra.filter(function(e){return !chk["x:"+e.toLowerCase()];}).length;
-    var h='<div class="card"><div class="toolbar" style="justify-content:space-between;align-items:center"><div><b>'+open+'</b> <span class="muted">noch zu kaufen</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="copyshop">Liste kopieren</button><button class="btn ghost" data-a="uncheck">Häkchen zurücksetzen</button></div></div><ul class="shop-list">';
-    items.forEach(function(it){var k=it.name.toLowerCase(),on=!!chk[k];h+='<li class="'+(on?"done":"")+'"><input type="checkbox" data-chk="'+esc(k)+'"'+(on?" checked":"")+'><span>'+esc(it.name)+'<span class="for">'+esc(it.dishes.join(", "))+'</span></span></li>';});
-    extra.forEach(function(e,idx){var k="x:"+e.toLowerCase(),on=!!chk[k];h+='<li class="'+(on?"done":"")+'"><input type="checkbox" data-chk="'+esc(k)+'"'+(on?" checked":"")+'><span>'+esc(e)+'<span class="for">Zusätzlich · <a href="#" data-delx="'+idx+'" style="color:inherit">entfernen</a></span></span></li>';});
-    return h+'</ul><form data-form="extra" class="addrow"><input name="x" placeholder="Etwas hinzufügen, z. B. Milch"><button class="btn">Hinzufügen</button></form></div>';
+    var key=weekKey(ui.offset),all=shopAll(key);
+    var todo=all.filter(function(i){return !i.on;}),got=all.filter(function(i){return i.on;});
+    var h='<form data-form="extra" class="quickadd"><span class="qa-ic">＋</span><input name="x" placeholder="Was brauchst du noch? z. B. Milch" autocomplete="off"><button class="btn primary">Hinzufügen</button></form>';
+    if(!all.length)return h+'<div class="card empty-state"><div style="font-size:40px">🧺</div>Noch nichts auf der Liste. Die Zutaten der geplanten Gerichte erscheinen automatisch hier.</div>';
+    h+='<div class="shop-head"><div><b>'+todo.length+'</b> <span class="muted">'+(todo.length===1?"Artikel":"Artikel")+' zu kaufen</span></div><div class="chips" style="margin:0"><button class="pill" data-a="copyshop">Liste kopieren</button></div></div>';
+    if(!todo.length)h+='<div class="card empty-state"><div style="font-size:40px">🎉</div>Alles eingekauft!</div>';
+    CATORDER.forEach(function(c){
+      var list=todo.filter(function(i){return i.cl.cat===c;});if(!list.length)return;
+      list.sort(function(a,b){return a.name.localeCompare(b.name,"de");});
+      h+='<h3 class="gh">'+esc(CATNAME[c])+'</h3><div class="tiles">'+list.map(tile).join("")+'</div>';
+    });
+    if(got.length){
+      h+='<div class="got-head"><h3 class="gh" style="margin:0">Zuletzt gekauft</h3><button class="pill" data-a="togglegot">'+(ui.showGot?"Ausblenden":"Anzeigen ("+got.length+")")+'</button></div>';
+      if(ui.showGot)h+='<div class="tiles">'+got.sort(function(a,b){return a.name.localeCompare(b.name,"de");}).map(tile).join("")+'</div><div class="chips" style="margin-top:12px"><button class="pill" data-a="uncheck">Alle wieder auf die Liste</button>'+(got.some(function(i){return i.idx!=null;})?'<button class="pill" data-a="clearextra">Eigene gekaufte Artikel entfernen</button>':'')+'</div>';
+    }
+    return h;
   }
   function renderTemplates(){
     var kw=isoWeek(monday(ui.offset))[1],list=tplsSorted();
@@ -420,6 +479,8 @@ window.startApp=function(backend){
   var actions={
     logout:function(){backend.logout();},
     thisweek:function(){ui.offset=0;render();},
+    togglegot:function(){ui.showGot=!ui.showGot;render();},
+    clearextra:function(){var key=weekKey(ui.offset),w=week(key),chk=w.checked||{},keep=[],pc={};(w.extra||[]).forEach(function(e){var k="x:"+e.toLowerCase();if(chk[k])pc[k]=null;else keep.push(e);});weekPatch(key,{extra:keep,checked:pc});},
     prev:function(){ui.offset--;render();},next:function(){ui.offset++;render();},
     close:function(){ui.modal=null;render();},
     confirm:function(){var r=ui.modal.run;ui.modal=null;r();render();},
@@ -470,6 +531,7 @@ window.startApp=function(backend){
     if((el=t.closest("[data-edit]"))){open({type:"recipe",id:el.dataset.edit});return;}
     if((el=t.closest("[data-del]"))){var rid=el.dataset.del,r=recipe(rid);open({type:"confirm",title:"«"+r.name+"» löschen?",text:"Das Gericht verschwindet aus der Liste und aus allen Plänen.",ok:"Löschen",run:function(){write("recipes/"+rid,function(x){return x.delete();});}});return;}
     if((el=t.closest("[data-deltpl]"))){var tid=el.dataset.deltpl;open({type:"confirm",title:"«"+D.templates[tid].name+"» löschen?",text:"Bereits geplante Wochen bleiben unverändert.",ok:"Löschen",run:function(){write("templates/"+tid,function(x){return x.delete();});}});return;}
+    if((el=t.closest("[data-tile]"))){var tk=el.dataset.tile,wk=weekKey(ui.offset),cur=!!(week(wk).checked||{})[tk],pt={checked:{}};pt.checked[tk]=cur?null:true;el.classList.add(cur?"pop-in":"pop-out");setTimeout(function(){weekPatch(wk,pt);},cur?0:180);return;}
     if((el=t.closest("[data-delx]"))){e.preventDefault();var key=weekKey(ui.offset),ex=(week(key).extra||[]).slice();ex.splice(+el.dataset.delx,1);weekPatch(key,{extra:ex});return;}
     if((el=t.closest("[data-a]"))&&actions[el.dataset.a]){actions[el.dataset.a]();}
   });
@@ -495,7 +557,9 @@ window.startApp=function(backend){
       var data={name:name,ingredients:f.elements.ing.value.split(/\n|,/).map(function(s){return s.trim();}).filter(Boolean),tags:f.elements.tags.value.split(",").map(function(s){return s.trim();}).filter(Boolean)};
       var id=ui.modal.id||db.collection("recipes").doc().id;
       write("recipes/"+id,function(r){return r.set(data);});ui.modal=null;render();
-    } else if(kind==="extra"){var x=f.elements.x.value.trim();if(!x)return;var key=weekKey(ui.offset);weekPatch(key,{extra:(week(key).extra||[]).concat([x])});f.elements.x.value="";}
+    } else if(kind==="extra"){var x=f.elements.x.value.trim();if(!x)return;var key=weekKey(ui.offset),lx=x.toLowerCase(),ex=week(key).extra||[],hit=shopAll(key).filter(function(i){return i.name.toLowerCase()===lx;})[0];f.elements.x.value="";
+      if(hit){if(hit.on){var pc={checked:{}};pc.checked[hit.k]=null;weekPatch(key,pc);}else toast("«"+hit.name+"» steht schon auf der Liste.");}
+      else weekPatch(key,{extra:ex.concat([x])});}
   });
 
   // ---------- connect ----------
@@ -542,7 +606,7 @@ var SUPABASE_ANON_KEY = "sb_publishable_n7wn0upCrbQa7Yg-RS6MxA_nkxVle7P";
   "use strict";
   var app=document.getElementById("app");
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
-  function shell(inner){app.innerHTML='<div class="wrap"><header class="top"><div class="brand"><div class="logo">🍽️</div><div><h1>Wochenmenü</h1><div class="sub">Gemeinsam planen, vorschlagen, einkaufen.</div></div></div></header><div class="card login">'+inner+'</div></div>';}
+  function shell(inner){app.innerHTML='<div class="wrap"><header class="top"><div class="brand"><img class="logo" src="icon-192.png" alt=""><div><h1>Wochenmenü</h1><div class="sub">Gemeinsam planen, vorschlagen, einkaufen.</div></div></div></header><div class="card login">'+inner+'</div></div>';}
 
   if(/DEIN-PROJEKT|DEIN-ANON-KEY/.test(SUPABASE_URL+SUPABASE_ANON_KEY)||!window.supabase){
     shell('<h2>Fast geschafft!</h2><p class="muted">Trage in der Datei <b>index.html</b> ganz oben bei <code>SUPABASE_URL</code> und <code>SUPABASE_ANON_KEY</code> die Werte aus deinem Supabase-Projekt ein (Project Settings → API).</p>');

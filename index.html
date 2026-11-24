@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2207">
+<meta name="app-version" content="20261124-2210">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -338,6 +338,8 @@ img.logo{display:block;object-fit:cover;padding:0}
 .mini{display:flex;gap:2px;font-size:18px;margin-top:4px}
 @media (min-width:900px){.hub{display:grid;grid-template-columns:1.3fr 2fr;align-items:start}.hgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:680px){.wrap{padding-bottom:calc(24px + env(safe-area-inset-bottom))}.toast,.updbar{bottom:calc(20px + env(safe-area-inset-bottom))}}
+.svwrap{position:relative;flex:none;display:inline-flex}
+.svwrap .who-b{position:absolute;right:-6px;bottom:-6px;box-shadow:0 0 0 2px #fff}
 </style>
 </head>
 <body>
@@ -527,7 +529,7 @@ window.startApp=function(backend){
     var v=s.votes||{},up=0,down=0;Object.keys(v).forEach(function(k){if(v[k]===1)up++;else if(v[k]===-1)down++;});
     var mine=v[me];
     var cur=s.day!=null?label(slotOf(week(s.week).days,s.day,s.meal)):"";
-    var h='<div class="sug'+(isNew(s)?" new":"")+'"><div class="sug-top">'+vis(s.recipeId,name,"svis")+'<div style="flex:1;min-width:0"><div class="sug-name">'+esc(name)+'</div><div class="muted small">'+(inModal?"":esc(where)+" · ")+'von '+esc(nameOf(s.by))+(cur?' · ersetzt «'+esc(cur)+'»':'')+'</div>'+(s.note?'<div class="small">'+esc(s.note)+'</div>':'')+'</div><button class="x" data-sdel="'+s.id+'" aria-label="Vorschlag entfernen">✕</button></div><div class="sug-acts">';
+    var h='<div class="sug'+(isNew(s)?" new":"")+'"><div class="sug-top"><span class="svwrap">'+vis(s.recipeId,name,"svis")+badge({e:s.by,t:s.at},false)+'</span><div style="flex:1;min-width:0"><div class="sug-name">'+esc(name)+'</div><div class="muted small">'+(inModal?"":esc(where)+" · ")+'von '+esc(nameOf(s.by)==="Du"?(names[me]||"dir"):nameOf(s.by))+(cur?' · ersetzt «'+esc(cur)+'»':'')+'</div>'+(s.note?'<div class="small">'+esc(s.note)+'</div>':'')+'</div><button class="x" data-sdel="'+s.id+'" aria-label="Vorschlag entfernen">✕</button></div><div class="sug-acts">';
     h+='<button class="vote'+(mine===1?" on":"")+'" data-vote="'+s.id+'|1">👍 '+up+'</button><button class="vote'+(mine===-1?" on":"")+'" data-vote="'+s.id+'|-1">👎 '+down+'</button><span style="flex:1"></span>';
     if(s.day!=null)h+='<button class="btn primary sm" data-accept="'+s.id+'">Übernehmen</button>';
     else{h+='<select class="sel" data-pday="'+s.id+'">'+DAYS.map(function(dn,i){return '<option value="'+i+'">'+dn.slice(0,2)+'</option>';}).join("")+'</select><select class="sel" data-pmeal="'+s.id+'"><option value="abend">Abend</option><option value="mittag">Mittag</option></select><button class="btn primary sm" data-plan="'+s.id+'">In KW '+isoWeek(monday(ui.offset))[1]+' einplanen</button>';}

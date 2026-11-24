@@ -2,7 +2,7 @@
 <html lang="de-CH">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="20261124-2144">
+<meta name="app-version" content="20261124-2148">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wochenmenü</title>
 <meta name="theme-color" content="#f6f7f9">
@@ -285,6 +285,8 @@ img.logo{display:block;object-fit:cover;padding:0}
 .tile.cat.own{background:var(--bg);box-shadow:inset 0 0 0 1.5px dashed var(--line2);border:1.5px dashed #c9ced6}
 .sugtiles{margin:-4px 0 16px;padding:10px;background:#fff;border-radius:16px;box-shadow:var(--shadow)}
 .catchips{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 10px;margin-bottom:6px}
+.tile.cat.recent{background:#fff}
+.tile.cat.recent .te{filter:grayscale(.25)}
 </style>
 </head>
 <body>
@@ -295,7 +297,7 @@ window.startApp=function(backend){
   "use strict";
   var DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
   var MEALS=[["mittag","Mittag"],["abend","Abend"]];
-  var D={recipes:{},templates:{},weeks:{},sugg:{},images:{}};
+  var D={recipes:{},templates:{},weeks:{},sugg:{},images:{},hist:{}};
   var loaded={recipes:false,templates:false,weeks:false,sugg:false};
   var ui={tab:"plan",offset:0,modal:null,mode:"set"};
   var db=null,user=null,me=null,readOnly=false,conn="connecting",names={},asked={};
@@ -514,6 +516,14 @@ window.startApp=function(backend){
     else weekPatch(key,{extra:ex.concat([x])});
   }
   function catTile(it,onList){return '<button class="tile cat'+(onList?" onlist":"")+'" data-addcat="'+esc(it.name)+'"><span class="te">'+it.icon+'</span><span class="tn">'+esc(it.name)+'</span></button>';}
+  function histItems(){var h=(D.hist.main&&D.hist.main.items)||{};return Object.keys(h).map(function(k){var v=h[k];return v&&v.n?{k:k,name:String(v.n),t:+v.t||0}:null;}).filter(Boolean).sort(function(a,b){return b.t-a.t;});}
+  function recordBought(name){
+    var k=String(name).toLowerCase().trim().replace(/[^a-z0-9äöüàéèç]+/g,"-").slice(0,60);if(!k)return;
+    var patch={items:{}};patch.items[k]={n:String(name),t:Date.now()};
+    var cur=(D.hist.main&&D.hist.main.items)||{},keys=Object.keys(cur);
+    if(keys.length>90){var keep=histItems().slice(0,60),items={};keep.forEach(function(i){items[i.k]=cur[i.k];});items[k]=patch.items[k];write("shophistory/main",function(r){return r.set({items:items});});}
+    else write("shophistory/main",function(r){return r.update(patch);});
+  }
   function renderShop(){
     var key=weekKey(ui.offset),all=shopAll(key);
     var todo=all.filter(function(i){return !i.on;}),got=all.filter(function(i){return i.on;});
@@ -534,10 +544,16 @@ window.startApp=function(backend){
         list.sort(function(a,b){return a.name.localeCompare(b.name,"de");});
         h+='<h3 class="gh">'+esc(CATNAME[c])+'</h3><div class="tiles">'+list.map(tile).join("")+'</div>';
       });
-      if(got.length){
-        h+='<div class="got-head"><h3 class="gh" style="margin:0">Zuletzt gekauft</h3><button class="pill" data-a="togglegot">'+(ui.showGot?"Ausblenden":"Anzeigen ("+got.length+")")+'</button></div>';
-        if(ui.showGot)h+='<div class="tiles">'+got.sort(function(a,b){return a.name.localeCompare(b.name,"de");}).map(tile).join("")+'</div><div class="chips" style="margin-top:12px"><button class="pill" data-a="uncheck">Alle wieder auf die Liste</button>'+(got.some(function(i){return i.idx!=null;})?'<button class="pill" data-a="clearextra">Eigene gekaufte Artikel entfernen</button>':'')+'</div>';
-      }
+    }
+    var seen={},recent=[];
+    var gotBy={};got.forEach(function(i){gotBy[i.name.toLowerCase()]=i;});
+    histItems().forEach(function(i){var n=i.name.toLowerCase();if(!seen[n]){seen[n]=1;var g=gotBy[n];recent.push({name:g?g.name:i.name,icon:g?g.cl.icon:classify(i.name).icon,tk:g&&g.k});}});
+    got.forEach(function(i){var n=i.name.toLowerCase();if(!seen[n]){seen[n]=1;recent.push({name:i.name,icon:i.cl.icon,tk:i.k});}});
+    recent=recent.filter(function(r){return !onl[r.name.toLowerCase()];});
+    var total=recent.length;recent=recent.slice(0,ui.moreHist?60:18);
+    if(recent.length){
+      h+='<div class="got-head"><h3 class="gh" style="margin:0">Zuletzt gekauft</h3>'+(total>18?'<button class="pill" data-a="morehist">'+(ui.moreHist?"Weniger":"Mehr anzeigen")+'</button>':'')+'</div>';
+      h+='<div class="tiles">'+recent.map(function(r){return '<button class="tile cat recent" data-readd="'+esc(r.name)+'"'+(r.tk?' data-tk="'+esc(r.tk)+'"':'')+'><span class="te">'+r.icon+'</span><span class="tn">'+esc(r.name)+'</span></button>';}).join("")+'</div>';
     }
     var sel=ui.catSel||"gemuese";
     h+='<div class="catalog" id="katalog"><h3 class="gh" style="margin-top:28px">Alle Produkte</h3><div class="chips catchips">'+CATORDER.filter(function(c){return CATALOG[c];}).map(function(c){return '<button class="pill'+(c===sel?" primary":"")+'" data-catsel="'+c+'">'+esc(CATNAME[c])+'</button>';}).join("")+'</div>';
@@ -629,6 +645,7 @@ window.startApp=function(backend){
     mphoto:function(){var m=ui.modal,f=document.querySelector('[data-form="recipe"]');if(f){m.draft={name:f.elements.name.value,ing:f.elements.ing.value,tags:f.elements.tags.value};}pickPhoto(function(src){if(ui.modal!==m)return;m.photo=src;render();restoreDraft(m);});},
     mphotodel:function(){var m=ui.modal,f=document.querySelector('[data-form="recipe"]');if(f)m.draft={name:f.elements.name.value,ing:f.elements.ing.value,tags:f.elements.tags.value};m.photo=null;render();restoreDraft(m);},
     tocat:function(){var c=document.getElementById("katalog");if(c)c.scrollIntoView({behavior:"smooth",block:"start"});},
+    morehist:function(){ui.moreHist=!ui.moreHist;render();},
     togglegot:function(){ui.showGot=!ui.showGot;render();},
     clearextra:function(){var key=weekKey(ui.offset),w=week(key),chk=w.checked||{},keep=[],pc={};(w.extra||[]).forEach(function(e){var k="x:"+e.toLowerCase();if(chk[k])pc[k]=null;else keep.push(e);});weekPatch(key,{extra:keep,checked:pc});},
     prev:function(){ui.offset--;render();},next:function(){ui.offset++;render();},
@@ -687,7 +704,8 @@ window.startApp=function(backend){
       if(el.classList.contains("onlist")){if(ix>=0){var ne=ex2.slice();ne.splice(ix,1);var pcx={extra:ne,checked:{}};pcx.checked["x:"+ln]=null;weekPatch(wk2,pcx);}else toast("«"+nm+"» gehört zu einem geplanten Gericht.");}
       else{addItem(nm);if(ui.q){ui.q="";}}
       render();return;}
-    if((el=t.closest("[data-tile]"))){var tk=el.dataset.tile,wk=weekKey(ui.offset),cur=!!(week(wk).checked||{})[tk],pt={checked:{}};pt.checked[tk]=cur?null:true;el.classList.add(cur?"pop-in":"pop-out");setTimeout(function(){weekPatch(wk,pt);},cur?0:180);return;}
+    if((el=t.closest("[data-readd]"))){var rn=el.dataset.readd,rk=el.dataset.tk;if(rk){var pr={checked:{}};pr.checked[rk]=null;weekPatch(weekKey(ui.offset),pr);}else addItem(rn);el.classList.add("pop-out");return;}
+    if((el=t.closest("[data-tile]"))){var tk=el.dataset.tile,wk=weekKey(ui.offset),cur=!!(week(wk).checked||{})[tk],pt={checked:{}};pt.checked[tk]=cur?null:true;if(!cur){var tn=el.querySelector(".tn");if(tn)recordBought(tn.textContent);}el.classList.add(cur?"pop-in":"pop-out");setTimeout(function(){weekPatch(wk,pt);},cur?0:180);return;}
     if((el=t.closest("[data-delx]"))){e.preventDefault();var key=weekKey(ui.offset),ex=(week(key).extra||[]).slice();ex.splice(+el.dataset.delx,1);weekPatch(key,{extra:ex});return;}
     if((el=t.closest("[data-a]"))&&actions[el.dataset.a]){actions[el.dataset.a]();}
   });
@@ -749,7 +767,7 @@ window.startApp=function(backend){
       me=id||"anon";
       if(user&&user.can){user.can("data.write").then(function(ok){if(ok===false){readOnly=true;render();}},function(){});}
       slowTimer=setTimeout(function(){if(conn!=="live"){conn="slow";render();}},10000);
-      sub("recipes","recipes");sub("templates","templates");sub("weeks","weeks");sub("suggestions","sugg");sub("images","images");
+      sub("recipes","recipes");sub("templates","templates");sub("weeks","weeks");sub("suggestions","sugg");sub("images","images");sub("shophistory","hist");
     });
   },function(){conn="nodb";render();});
 };
